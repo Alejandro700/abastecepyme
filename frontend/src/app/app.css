@@ -1,0 +1,194 @@
+/* Estilos de la interfaz mínima del Feature 1. */
+
+:host {
+  display: block;
+  background: #f8fafc;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #0f172a;
+}
+
+.pagina {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.encabezado h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.subtitulo {
+  margin: 4px 0 20px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tarjeta {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.tarjeta h2 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.campo {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.campo span {
+  display: block;
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+.conector {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: center;
+}
+
+button {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button.secundario {
+  background: #ffffff;
+  color: #2563eb;
+  border: 1px solid #cbd5e1;
+}
+
+.titulo-con-accion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.titulo-con-accion h2 {
+  margin: 0;
+}
+
+.contador {
+  display: block;
+  font-weight: normal;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.alerta {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.alerta--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.alerta--ok {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.vacio {
+  color: #64748b;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 32px 0;
+  margin: 0;
+}
+
+.leyenda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.punto {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.punto:not(:first-child) {
+  margin-left: 14px;
+}
+
+.punto--producto {
+  background: #2563eb;
+}
+
+.punto--insumo {
+  background: #16a34a;
+}
+
+.punto--proveedor {
+  background: #ea580c;
+}
+
+.listado {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #334155;
+}
