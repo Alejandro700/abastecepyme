@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 
 from .errors import IdElementoInvalidoError
@@ -8,6 +7,7 @@ LONGITUD_MAXIMA_ID = 120
 
 
 def normalizar_id(valor: object) -> str:
+    """Valida el id y le quita los espacios de los extremos."""
 
     if not isinstance(valor, str):
         raise IdElementoInvalidoError(
@@ -28,18 +28,20 @@ def normalizar_id(valor: object) -> str:
 
 
 def clave_de(id_elemento: str) -> str:
+    """Clave de comparación: el id sin distinguir mayúsculas."""
 
     return id_elemento.casefold()
 
 
 @dataclass(frozen=True, slots=True)
 class Elemento:
-
+    """Producto, insumo o proveedor del catálogo."""
 
     id: str
     tipo: TipoElemento
 
     def __post_init__(self) -> None:
+        """Impide construir un elemento con datos sin normalizar."""
 
         if not isinstance(self.id, str) or self.id != self.id.strip() or not self.id:
             raise IdElementoInvalidoError(

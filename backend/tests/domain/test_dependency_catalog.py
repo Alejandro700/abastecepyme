@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from domain.dependency_catalog import (
@@ -34,13 +32,9 @@ def catalogo_silla() -> DependencyCatalog:
     return c
 
 
-# ----------------------------------------------------------------------
-# TipoElemento
-# ----------------------------------------------------------------------
-
-
 class TestTipoElemento:
     @pytest.mark.parametrize(
+        "entrada,esperado",
         [
             ("PRODUCTO", TipoElemento.PRODUCTO),
             ("producto", TipoElemento.PRODUCTO),
@@ -50,7 +44,6 @@ class TestTipoElemento:
         ],
     )
     def test_tolera_mayusculas_y_espacios(self, entrada, esperado):
-        # Cómo se escribe no cambia el dato: 'producto' e 'PRODUCTO' son lo mismo.
         assert TipoElemento.desde_texto(entrada) is esperado
 
     @pytest.mark.parametrize("invalido", ["MUEBLE", "", "   ", None, 7])
@@ -59,17 +52,10 @@ class TestTipoElemento:
             TipoElemento.desde_texto(invalido)
 
     def test_el_error_enumera_las_opciones_validas(self):
-        # Un mensaje que solo diga "tipo inválido" obliga al usuario a
-        # adivinar; este le dice qué puede escribir.
         with pytest.raises(TipoElementoInvalidoError) as info:
             TipoElemento.desde_texto("MUEBLE")
         mensaje = str(info.value)
         assert "PRODUCTO" in mensaje and "INSUMO" in mensaje and "PROVEEDOR" in mensaje
-
-
-# ----------------------------------------------------------------------
-# Elemento
-# ----------------------------------------------------------------------
 
 
 class TestElemento:
@@ -98,17 +84,10 @@ class TestElemento:
             elemento.id = "Mesa"  # type: ignore[misc]
 
     def test_el_constructor_directo_exige_datos_limpios(self):
-        # Elemento(...) es para uso interno; Elemento.crear() es la puerta
-        # de entrada para datos del usuario. El test deja clara la diferencia.
         with pytest.raises(IdElementoInvalidoError):
             Elemento(id="  Silla  ", tipo=TipoElemento.PRODUCTO)
         with pytest.raises(IdElementoInvalidoError):
             Elemento(id="Silla", tipo="PRODUCTO")  # type: ignore[arg-type]
-
-
-# ----------------------------------------------------------------------
-# Registrar elementos
-# ----------------------------------------------------------------------
 
 
 class TestRegistrarElementos:
@@ -133,8 +112,7 @@ class TestRegistrarElementos:
             catalogo.registrar_elemento("Silla", "PRODUCTO")
 
     def test_rechaza_duplicado_aunque_cambie_el_tipo(self, catalogo):
-        # El id es único en todo el catálogo, no por tipo: si 'Madera' fuera
-        # a la vez insumo y proveedor, la red mostraría un solo nodo ambiguo.
+        # El id es único en todo el catálogo, no por tipo.
         catalogo.registrar_elemento("Madera", "INSUMO")
         with pytest.raises(ElementoDuplicadoError):
             catalogo.registrar_elemento("Madera", "PROVEEDOR")
@@ -149,7 +127,6 @@ class TestRegistrarElementos:
         catalogo.registrar_elemento("Madera", "INSUMO")
         with pytest.raises(ElementoDuplicadoError) as info:
             catalogo.registrar_elemento("madera", "INSUMO")
-        # Sin esto el usuario no entiende por qué su id "nuevo" está tomado.
         assert "Madera" in str(info.value)
 
     def test_el_rechazo_no_altera_el_catalogo(self, catalogo):
@@ -173,11 +150,6 @@ class TestRegistrarElementos:
         ]
 
 
-# ----------------------------------------------------------------------
-# Buscar elementos
-# ----------------------------------------------------------------------
-
-
 class TestBuscarElementos:
     def test_encuentra_sin_distinguir_mayusculas(self, catalogo_silla):
         assert catalogo_silla.obtener_elemento("SILLA").id == "Silla"
@@ -190,14 +162,8 @@ class TestBuscarElementos:
     def test_existe_elemento_responde_sin_lanzar(self, catalogo_silla):
         assert catalogo_silla.existe_elemento("silla") is True
         assert catalogo_silla.existe_elemento("Mesa") is False
-        # También con datos basura: es una consulta, no debe explotar.
         assert catalogo_silla.existe_elemento("") is False
         assert catalogo_silla.existe_elemento(None) is False
-
-
-# ----------------------------------------------------------------------
-# Registrar dependencias
-# ----------------------------------------------------------------------
 
 
 class TestRegistrarDependencias:
@@ -209,8 +175,6 @@ class TestRegistrarDependencias:
         assert catalogo.total_dependencias() == 1
 
     def test_la_direccion_es_a_requiere_b(self, catalogo_silla):
-        # La decisión fundacional, escrita como test: la frase del brief debe
-        # leerse bien en el sentido en que se guardó.
         dependencia = catalogo_silla.listar_dependencias()[0]
         assert dependencia.frase() == (
             "Para producir/preparar Silla necesito Madera"
@@ -220,7 +184,6 @@ class TestRegistrarDependencias:
         catalogo.registrar_elemento("Silla", "PRODUCTO")
         catalogo.registrar_elemento("Madera", "INSUMO")
         dependencia = catalogo.registrar_dependencia("silla", "MADERA")
-        # Resuelve al elemento real y guarda su id tal como fue registrado.
         assert (dependencia.origen_id, dependencia.destino_id) == ("Silla", "Madera")
 
     def test_rechaza_dependencia_repetida(self, catalogo_silla):
@@ -233,8 +196,6 @@ class TestRegistrarDependencias:
             catalogo_silla.registrar_dependencia("SILLA", "madera")
 
     def test_rechaza_autodependencia(self, catalogo_silla):
-        # "Para producir Silla necesito Silla" no tiene sentido: es dato mal
-        # formado, no un ciclo de negocio que deba detectar F3.
         with pytest.raises(AutodependenciaError):
             catalogo_silla.registrar_dependencia("Silla", "Silla")
 
@@ -251,8 +212,7 @@ class TestRegistrarDependencias:
             catalogo_silla.registrar_dependencia("Silla", "Barniz")
 
     def test_permite_dependencia_entre_elementos_del_mismo_tipo(self, catalogo):
-        # Decisión documentada: no se restringe qué tipo depende de qué tipo.
-        # Un insumo compuesto por otro insumo es un caso real del negocio.
+        # No se restringe qué tipo puede depender de qué tipo.
         catalogo.registrar_elemento("Tablero", "INSUMO")
         catalogo.registrar_elemento("Madera", "INSUMO")
         catalogo.registrar_dependencia("Tablero", "Madera")
@@ -273,18 +233,12 @@ class TestRegistrarDependencias:
         ]
 
 
-# ----------------------------------------------------------------------
-# La red completa
-# ----------------------------------------------------------------------
-
-
 class TestRedDeDependencias:
     def test_el_caso_del_brief_queda_bien_representado(self, catalogo_silla):
         assert catalogo_silla.total_elementos() == 4
         assert catalogo_silla.total_dependencias() == 3
 
     def test_un_elemento_sin_dependencias_igual_aparece_en_la_red(self, catalogo_silla):
-        # Nodo aislado: sin él, la interfaz mostraría una red incompleta.
         catalogo_silla.registrar_elemento("Barniz", "INSUMO")
         ids = [e.id for e in catalogo_silla.listar_elementos()]
         assert "Barniz" in ids

@@ -1,5 +1,3 @@
-
-
 from pydantic import BaseModel, ConfigDict, Field
 
 from domain.dependency_catalog import TipoElemento
@@ -8,6 +6,7 @@ _TIPOS = ", ".join(TipoElemento.valores())
 
 
 class CrearElementoRequest(BaseModel):
+    """Cuerpo para registrar un elemento."""
 
     model_config = ConfigDict(
         json_schema_extra={"example": {"id": "Silla", "tipo": "PRODUCTO"}}
@@ -22,13 +21,14 @@ class CrearElementoRequest(BaseModel):
 
 
 class ElementoResponse(BaseModel):
+    """Elemento tal como lo recibe el cliente."""
 
     id: str
     tipo: TipoElemento
 
 
 class CrearDependenciaRequest(BaseModel):
-
+    """Cuerpo para registrar que un elemento requiere a otro."""
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -45,6 +45,7 @@ class CrearDependenciaRequest(BaseModel):
 
 
 class DependenciaResponse(BaseModel):
+    """Dependencia con su frase en lenguaje natural."""
 
     origen_id: str
     destino_id: str
@@ -58,7 +59,7 @@ class DependenciaResponse(BaseModel):
 
 
 class RedResponse(BaseModel):
-
+    """Elementos y dependencias juntos, con sus totales."""
 
     elementos: list[ElementoResponse]
     dependencias: list[DependenciaResponse]
@@ -67,7 +68,7 @@ class RedResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
-
+    """Formato único de error de la API."""
 
     model_config = ConfigDict(
         json_schema_extra={

@@ -1,5 +1,3 @@
-
-
 from dataclasses import dataclass
 
 from domain.dependency_catalog import (
@@ -11,7 +9,7 @@ from domain.dependency_catalog import (
 
 @dataclass(frozen=True, slots=True)
 class RedDependencias:
-
+    """Elementos y dependencias del catálogo, juntos."""
 
     elementos: tuple[Elemento, ...]
     dependencias: tuple[Dependencia, ...]
@@ -26,9 +24,9 @@ class RedDependencias:
 
 
 class CatalogService:
+    """Casos de uso del catálogo de dependencias."""
 
     def __init__(self, repositorio: CatalogRepository) -> None:
-
         if not isinstance(repositorio, CatalogRepository):
             raise TypeError(
                 f"Se esperaba un CatalogRepository, se recibió "
@@ -36,12 +34,7 @@ class CatalogService:
             )
         self._repositorio = repositorio
 
-    # ------------------------------------------------------------------
-    # Casos de uso de escritura
-    # ------------------------------------------------------------------
-
     def crear_elemento(self, id_elemento: object, tipo: object) -> Elemento:
-
         catalogo = self._repositorio.obtener()
         elemento = catalogo.registrar_elemento(id_elemento, tipo)
 
@@ -51,15 +44,10 @@ class CatalogService:
     def crear_dependencia(
         self, origen_id: object, destino_id: object
     ) -> Dependencia:
-
         catalogo = self._repositorio.obtener()
         dependencia = catalogo.registrar_dependencia(origen_id, destino_id)
         self._repositorio.guardar(catalogo)
         return dependencia
-
-    # ------------------------------------------------------------------
-    # Casos de uso de lectura
-    # ------------------------------------------------------------------
 
     def listar_elementos(self) -> tuple[Elemento, ...]:
         return self._repositorio.obtener().listar_elementos()
@@ -71,7 +59,6 @@ class CatalogService:
         return self._repositorio.obtener().listar_dependencias()
 
     def obtener_red(self) -> RedDependencias:
-
         catalogo = self._repositorio.obtener()
         return RedDependencias(
             elementos=catalogo.listar_elementos(),

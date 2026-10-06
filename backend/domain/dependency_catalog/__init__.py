@@ -1,5 +1,3 @@
-
-
 from .dependencia import Dependencia
 from .dependency_catalog import DependencyCatalog
 from .elemento import Elemento, clave_de, normalizar_id

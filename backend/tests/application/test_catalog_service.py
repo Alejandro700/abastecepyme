@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from application import CatalogService, RedDependencias
@@ -18,7 +16,7 @@ from infrastructure import InMemoryCatalogRepository
 
 
 class RepositorioEspia(CatalogRepository):
-
+    """Repositorio de prueba que cuenta las llamadas a obtener y guardar."""
 
     def __init__(self) -> None:
         self._catalogo = DependencyCatalog()
@@ -53,15 +51,12 @@ def servicio_cargado(servicio) -> CatalogService:
 
 class TestConstruccion:
     def test_exige_un_repositorio_valido(self):
-        # Sin esto, el error aparecería recién en la primera operación, lejos
-        # del lugar donde se armó mal la aplicación.
         with pytest.raises(TypeError):
             CatalogService("repositorio")  # type: ignore[arg-type]
         with pytest.raises(TypeError):
             CatalogService(None)  # type: ignore[arg-type]
 
     def test_acepta_cualquier_implementacion_del_puerto(self):
-        # El servicio depende del contrato, no de la clase concreta.
         assert CatalogService(RepositorioEspia()) is not None
 
 
@@ -76,14 +71,11 @@ class TestCrearElemento:
         assert servicio.obtener_elemento("silla").id == "Silla"
 
     def test_guarda_despues_de_crear(self):
-        # El contrato exige llamar a `guardar` aunque hoy sea casi un no-op.
         espia = RepositorioEspia()
         CatalogService(espia).crear_elemento("Silla", "PRODUCTO")
         assert espia.llamadas_guardar == 1
 
     def test_no_guarda_si_el_dominio_rechaza(self):
-        # Una escritura fallida no debe generar persistencia: con base de
-        # datos sería una transacción vacía o, peor, un estado a medias.
         espia = RepositorioEspia()
         with pytest.raises(TipoElementoInvalidoError):
             CatalogService(espia).crear_elemento("Mesa", "MUEBLE")
@@ -97,9 +89,6 @@ class TestCrearElemento:
         ],
     )
     def test_propaga_los_errores_del_dominio(self, servicio, id_elemento, tipo, error):
-        # No los captura ni los reinterpreta: traducirlos a HTTP es trabajo
-        # de `api/`. Si el servicio los tragara, la API no podría distinguir
-        # un 422 de un 409.
         with pytest.raises(error):
             servicio.crear_elemento(id_elemento, tipo)
 
@@ -149,7 +138,6 @@ class TestCrearDependencia:
 
 class TestLecturas:
     def test_catalogo_vacio_devuelve_listas_vacias(self, servicio):
-        # Caso importante para la API: lista vacía es un 200, no un 404.
         assert servicio.listar_elementos() == ()
         assert servicio.listar_dependencias() == ()
 
@@ -173,7 +161,6 @@ class TestLecturas:
             servicio_cargado.obtener_elemento("Mesa")
 
     def test_las_lecturas_no_guardan(self, servicio_cargado):
-        # Una consulta que escriba sería un bug caro con base de datos.
         espia = RepositorioEspia()
         servicio = CatalogService(espia)
         servicio.listar_elementos()
@@ -190,8 +177,6 @@ class TestRedDependencias:
         assert red.total_dependencias == 3
 
     def test_la_red_es_consistente(self, servicio_cargado):
-        # Toda dependencia apunta a elementos que están en la misma respuesta.
-        # Si no fuera así, Cytoscape fallaría al dibujar una arista huérfana.
         red = servicio_cargado.obtener_red()
         ids = {e.id for e in red.elementos}
         for dependencia in red.dependencias:
@@ -199,7 +184,6 @@ class TestRedDependencias:
             assert dependencia.destino_id in ids
 
     def test_incluye_elementos_aislados(self, servicio_cargado):
-        # Un elemento sin dependencias también es parte de la red.
         servicio_cargado.crear_elemento("Barniz", "INSUMO")
         red = servicio_cargado.obtener_red()
         assert "Barniz" in {e.id for e in red.elementos}

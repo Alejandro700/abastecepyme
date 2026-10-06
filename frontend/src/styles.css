@@ -1,1 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --marca: #6a45e6;
+  --marca-oscuro: #4f2fc4;
+  --marca-suave: #f1edfd;
+  --tinta: #0f1c6b;
+  --texto: #1e293b;
+  --texto-suave: #475569;
+  --borde: #e2e0f1;
+  --fondo: #f7f6fc;
+  --producto: #6a45e6;
+  --insumo: #16a34a;
+  --proveedor: #ea580c;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+}

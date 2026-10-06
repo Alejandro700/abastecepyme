@@ -1,5 +1,3 @@
-
-
 from dataclasses import dataclass
 
 from .node import validate_node_id
@@ -7,7 +5,7 @@ from .node import validate_node_id
 
 @dataclass(frozen=True, slots=True)
 class Edge:
-
+    """Arista dirigida de `source_id` hacia `target_id`."""
 
     source_id: str
     target_id: str

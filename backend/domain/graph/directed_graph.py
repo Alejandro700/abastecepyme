@@ -1,26 +1,18 @@
-
-
 from .edge import Edge
 from .errors import DuplicateEdgeError, DuplicateNodeError, NodeNotFoundError
 from .node import Node, validate_node_id
 
 
 class DirectedGraph:
+    """Grafo dirigido de nodos con identificador único."""
 
     def __init__(self) -> None:
-        # dict preserva el orden de inserción (garantizado desde Python 3.7),
-        # así que listar nodos devuelve siempre el mismo orden: útil para que
-        # la API y los tests sean deterministas.
+        # dict conserva el orden de inserción: los listados son deterministas.
         self._nodes: dict[str, Node] = {}
         self._successors: dict[str, set[str]] = {}
         self._predecessors: dict[str, set[str]] = {}
 
-    # ------------------------------------------------------------------
-    # Nodos
-    # ------------------------------------------------------------------
-
     def add_node(self, node: Node) -> Node:
-
         if not isinstance(node, Node):
             raise TypeError(
                 f"add_node espera un Node, se recibió {type(node).__name__}."
@@ -46,12 +38,7 @@ class DirectedGraph:
     def node_count(self) -> int:
         return len(self._nodes)
 
-    # ------------------------------------------------------------------
-    # Aristas
-    # ------------------------------------------------------------------
-
     def add_edge(self, source_id: str, target_id: str) -> Edge:
-
         validate_node_id(source_id, field_name="El id origen de la arista")
         validate_node_id(target_id, field_name="El id destino de la arista")
         self._require_node(source_id)
@@ -65,13 +52,11 @@ class DirectedGraph:
         return Edge(source_id=source_id, target_id=target_id)
 
     def has_edge(self, source_id: str, target_id: str) -> bool:
-
         if source_id not in self._successors:
             return False
         return target_id in self._successors[source_id]
 
     def edges(self) -> tuple[Edge, ...]:
-
         result: list[Edge] = []
         for source_id in self._nodes:
             for target_id in sorted(self._successors[source_id]):
@@ -81,26 +66,15 @@ class DirectedGraph:
     def edge_count(self) -> int:
         return sum(len(targets) for targets in self._successors.values())
 
-    # ------------------------------------------------------------------
-    # Vecindad
-    # ------------------------------------------------------------------
-
     def successors(self, node_id: str) -> frozenset[str]:
-
         self._require_node(node_id)
         return frozenset(self._successors[node_id])
 
     def predecessors(self, node_id: str) -> frozenset[str]:
-
         self._require_node(node_id)
         return frozenset(self._predecessors[node_id])
 
-    # ------------------------------------------------------------------
-    # Interno
-    # ------------------------------------------------------------------
-
     def _require_node(self, node_id: str) -> None:
-
         if node_id not in self._nodes:
             raise NodeNotFoundError(node_id)
 

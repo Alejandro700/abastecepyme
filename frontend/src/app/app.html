@@ -1,12 +1,16 @@
+<header class="barra">
+  <div class="barra__contenido">
+    <h1 class="logo">
+      <img src="logo.png" alt="AbastecePyme: conecta, analiza, produce" width="900" height="210" />
+    </h1>
+  </div>
+</header>
 
 <div class="pagina">
-  <header class="encabezado">
-    <h1>AbastecePyme</h1>
-    <p class="subtitulo">
-      Catálogo de dependencias — una flecha <strong>A → B</strong> significa
-      que para producir o preparar A se necesita B.
-    </p>
-  </header>
+  <p class="introduccion">
+    Catálogo de dependencias. Una flecha <strong>A → B</strong> significa que para producir o
+    preparar A se necesita B.
+  </p>
 
   @if (error()) {
     <div class="alerta alerta--error" role="alert">{{ error() }}</div>
@@ -43,7 +47,6 @@
       <button type="button" (click)="crearElemento()">Agregar elemento</button>
     </section>
 
-    <!-- Alta de dependencias -->
     <section class="tarjeta">
       <h2>Registrar dependencia</h2>
 
@@ -73,7 +76,6 @@
     </section>
   </div>
 
-  <!-- La red -->
   <section class="tarjeta">
     <div class="titulo-con-accion">
       <h2>
@@ -89,9 +91,7 @@
     </div>
 
     @if (red().total_elementos === 0) {
-      <p class="vacio">
-        Todavía no hay elementos cargados. Registrá el primero para ver la red.
-      </p>
+      <p class="vacio">Todavía no hay elementos cargados. Registra el primero para ver la red.</p>
     } @else {
       <app-graph-view [red]="red()" />
 

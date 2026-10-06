@@ -1,11 +1,6 @@
-
 export type TipoElemento = 'PRODUCTO' | 'INSUMO' | 'PROVEEDOR';
 
-export const TIPOS_ELEMENTO: readonly TipoElemento[] = [
-  'PRODUCTO',
-  'INSUMO',
-  'PROVEEDOR',
-];
+export const TIPOS_ELEMENTO: readonly TipoElemento[] = ['PRODUCTO', 'INSUMO', 'PROVEEDOR'];
 
 export interface Elemento {
   id: string;
@@ -24,7 +19,6 @@ export interface Red {
   total_elementos: number;
   total_dependencias: number;
 }
-
 
 export interface ApiError {
   error_code: string;

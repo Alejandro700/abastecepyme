@@ -3,15 +3,12 @@ import { GraphView } from './Graph/graphView';
 import { CatalogService } from './Graph/services/catalog.service';
 import { Red, TipoElemento, TIPOS_ELEMENTO } from './Graph/models/catalog.models';
 
-
-
 const RED_VACIA: Red = {
   elementos: [],
   dependencias: [],
   total_elementos: 0,
   total_dependencias: 0,
 };
-
 
 @Component({
   selector: 'app-root',
@@ -29,11 +26,9 @@ export class App {
   readonly aviso = signal<string | null>(null);
   readonly cargando = signal(false);
 
-  // Campos del formulario de elemento.
   readonly nuevoId = signal('');
   readonly nuevoTipo = signal<TipoElemento>('PRODUCTO');
 
-  // Campos del formulario de dependencia.
   readonly origenId = signal('');
   readonly destinoId = signal('');
 
@@ -59,7 +54,7 @@ export class App {
   crearElemento(): void {
     const id = this.nuevoId().trim();
     if (!id) {
-      this.error.set('Escribí un identificador.');
+      this.error.set('Escribe un identificador.');
       return;
     }
 
@@ -67,7 +62,6 @@ export class App {
       next: (elemento) => {
         this.nuevoId.set('');
         this.mostrarAviso(`Se registró ${elemento.tipo} "${elemento.id}".`);
-
         this.recargar();
       },
       error: (fallo: Error) => this.mostrarError(fallo.message),
@@ -78,7 +72,7 @@ export class App {
     const origen = this.origenId().trim();
     const destino = this.destinoId().trim();
     if (!origen || !destino) {
-      this.error.set('Elegí los dos elementos.');
+      this.error.set('Elige los dos elementos.');
       return;
     }
 

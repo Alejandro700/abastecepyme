@@ -1,5 +1,3 @@
-
-
 from .directed_graph import DirectedGraph
 from .edge import Edge
 from .errors import (

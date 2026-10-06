@@ -1,10 +1,9 @@
-
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True, slots=True)
 class Dependencia:
-
+    """Relación dirigida: `origen_id` requiere a `destino_id`."""
 
     origen_id: str
     destino_id: str
