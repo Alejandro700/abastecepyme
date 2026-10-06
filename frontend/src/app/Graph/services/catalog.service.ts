@@ -4,11 +4,9 @@ import { catchError, Observable, throwError } from 'rxjs';
 
 import { ApiError, Dependencia, Elemento, Red, TipoElemento } from '../models/catalog.models';
 
-
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
   private readonly http = inject(HttpClient);
-
 
   private readonly base = 'http://localhost:8000/api';
 
@@ -31,16 +29,12 @@ export class CatalogService {
       .pipe(catchError(this.traducirError));
   }
 
-
   private traducirError(respuesta: HttpErrorResponse) {
     const cuerpo = respuesta.error as ApiError | null;
 
     if (respuesta.status === 0) {
       return throwError(
-        () =>
-          new Error(
-            'No se pudo contactar al servidor. ¿Está corriendo en localhost:8000?',
-          ),
+        () => new Error('No se pudo contactar al servidor. ¿Está corriendo en localhost:8000?'),
       );
     }
 

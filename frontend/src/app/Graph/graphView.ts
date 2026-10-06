@@ -1,21 +1,15 @@
-import {
-  Component,
-  ElementRef,
-  effect,
-  input,
-  OnDestroy,
-  viewChild,
-} from '@angular/core';
+import { Component, ElementRef, effect, input, OnDestroy, viewChild } from '@angular/core';
 import cytoscape from 'cytoscape';
+import dagre from 'cytoscape-dagre';
 import { Red, TipoElemento } from './models/catalog.models';
 
+cytoscape.use(dagre);
 
 const COLOR_POR_TIPO: Record<TipoElemento, string> = {
-  PRODUCTO: '#2563eb',
+  PRODUCTO: '#6a45e6',
   INSUMO: '#16a34a',
   PROVEEDOR: '#ea580c',
 };
-
 
 @Component({
   selector: 'app-graph-view',
@@ -26,8 +20,8 @@ const COLOR_POR_TIPO: Record<TipoElemento, string> = {
         width: 100%;
         height: 480px;
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        border: 1px solid #e2e0f1;
+        border-radius: 10px;
       }
     `,
   ],
@@ -39,7 +33,6 @@ export class GraphView implements OnDestroy {
   private cy?: cytoscape.Core;
 
   constructor() {
-
     effect(() => {
       const red = this.red();
       const contenedor = this.lienzo().nativeElement;
@@ -48,7 +41,6 @@ export class GraphView implements OnDestroy {
   }
 
   private dibujar(contenedor: HTMLElement, red: Red): void {
-
     this.cy?.destroy();
 
     this.cy = cytoscape({
@@ -73,13 +65,13 @@ export class GraphView implements OnDestroy {
               COLOR_POR_TIPO[nodo.data('tipo') as TipoElemento] ?? '#64748b',
             label: 'data(etiqueta)',
             color: '#ffffff',
-            'font-size': '11px',
+            'font-size': '12px',
             'font-weight': 'bold',
             'text-valign': 'center',
             'text-halign': 'center',
             width: 'label',
-            height: 28,
-            padding: '10px',
+            height: 30,
+            padding: '12px',
             shape: 'round-rectangle',
           },
         },
@@ -87,21 +79,22 @@ export class GraphView implements OnDestroy {
           selector: 'edge',
           style: {
             width: 2,
-            'line-color': '#94a3b8',
-            'target-arrow-color': '#94a3b8',
-            // La flecha apunta al destino: se lee "el origen requiere al
-            // destino", igual que en el backend.
+            'line-color': '#a9a4cf',
+            'target-arrow-color': '#a9a4cf',
+            // La flecha apunta al destino: "el origen requiere al destino".
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
           },
         },
       ],
+      // Los productos quedan arriba y sus requisitos debajo, siguiendo la dirección de las flechas.
       layout: {
-        name: 'breadthfirst',
-        directed: true,
+        name: 'dagre',
+        rankDir: 'TB',
+        nodeSep: 40,
+        rankSep: 70,
         padding: 24,
-        spacingFactor: 1.4,
-      },
+      } as cytoscape.LayoutOptions,
       minZoom: 0.3,
       maxZoom: 2.5,
     });

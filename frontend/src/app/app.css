@@ -1,28 +1,53 @@
-/* Estilos de la interfaz mínima del Feature 1. */
-
 :host {
   display: block;
-  background: #f8fafc;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #0f172a;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
 }
 
+.barra {
+  background: #ffffff;
+  border-bottom: 1px solid var(--borde);
+}
+
+.barra__contenido,
 .pagina {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-.encabezado h1 {
+.barra__contenido {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.pagina {
+  padding-top: 20px;
+  padding-bottom: 48px;
+}
+
+.logo {
   margin: 0;
-  font-size: 1.6rem;
+  line-height: 0;
 }
 
-.subtitulo {
-  margin: 4px 0 20px;
-  color: #475569;
-  font-size: 0.9rem;
+.logo img {
+  display: block;
+  height: 64px;
+  width: auto;
+}
+
+.introduccion {
+  margin: 0 0 20px;
+  color: var(--texto-suave);
+  font-size: 0.95rem;
 }
 
 .columnas {
@@ -34,15 +59,21 @@
 
 .tarjeta {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 28, 107, 0.06);
+  padding: 18px;
   margin-bottom: 16px;
 }
 
+.columnas .tarjeta {
+  margin-bottom: 0;
+}
+
 .tarjeta h2 {
-  margin: 0 0 12px;
-  font-size: 1rem;
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+  color: var(--tinta);
 }
 
 .campo {
@@ -52,48 +83,50 @@
 
 .campo span {
   display: block;
-  font-size: 0.8rem;
-  color: #475569;
   margin-bottom: 4px;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
 }
 
 .campo input,
 .campo select {
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid #cdc8e6;
+  border-radius: 8px;
   background: #ffffff;
   color: inherit;
-  box-sizing: border-box;
+  font-size: 0.9rem;
 }
 
 .campo input:focus,
-.campo select:focus {
-  outline: 2px solid #2563eb;
+.campo select:focus,
+button:focus-visible {
+  outline: 2px solid var(--marca);
   outline-offset: 1px;
 }
 
 .conector {
   margin: 0 0 12px;
+  text-align: center;
   font-size: 0.8rem;
   color: #64748b;
-  text-align: center;
 }
 
 button {
-  background: #2563eb;
+  background: var(--marca);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 9px 16px;
   font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
 button:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--marca-oscuro);
 }
 
 button:disabled {
@@ -103,8 +136,12 @@ button:disabled {
 
 button.secundario {
   background: #ffffff;
-  color: #2563eb;
-  border: 1px solid #cbd5e1;
+  color: var(--marca);
+  border: 1px solid #cdc8e6;
+}
+
+button.secundario:hover:not(:disabled) {
+  background: var(--marca-suave);
 }
 
 .titulo-con-accion {
@@ -112,7 +149,7 @@ button.secundario {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .titulo-con-accion h2 {
@@ -127,9 +164,9 @@ button.secundario {
 }
 
 .alerta {
+  margin-bottom: 16px;
   padding: 10px 14px;
   border-radius: 8px;
-  margin-bottom: 16px;
   font-size: 0.9rem;
 }
 
@@ -146,11 +183,11 @@ button.secundario {
 }
 
 .vacio {
-  color: #64748b;
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 32px 0;
   margin: 0;
+  padding: 32px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
 }
 
 .leyenda {
@@ -159,14 +196,14 @@ button.secundario {
   gap: 6px;
   margin-top: 12px;
   font-size: 0.8rem;
-  color: #475569;
+  color: var(--texto-suave);
 }
 
 .punto {
+  display: inline-block;
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  display: inline-block;
 }
 
 .punto:not(:first-child) {
@@ -174,15 +211,15 @@ button.secundario {
 }
 
 .punto--producto {
-  background: #2563eb;
+  background: var(--producto);
 }
 
 .punto--insumo {
-  background: #16a34a;
+  background: var(--insumo);
 }
 
 .punto--proveedor {
-  background: #ea580c;
+  background: var(--proveedor);
 }
 
 .listado {
@@ -191,4 +228,10 @@ button.secundario {
   font-size: 0.9rem;
   line-height: 1.7;
   color: #334155;
+}
+
+@media (max-width: 600px) {
+  .logo img {
+    height: 44px;
+  }
 }

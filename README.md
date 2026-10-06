@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/public/logo.png" alt="AbastecePyme: conecta, analiza, produce" width="360">
+</p>
+
 # AbastecePyme — Catálogo de dependencias
 
 AbastecePyme fabrica productos sencillos y depende de insumos y proveedores. Este
@@ -20,6 +24,15 @@ Este README documenta la **Feature 1: catálogo de dependencias**.
 | Validar relaciones repetidas y datos mal formados | Errores con código HTTP y `error_code` estables (ver más abajo). |
 | Mostrar la red por API e interfaz mínima | `GET /api/red` y el grafo dibujado en el frontend. |
 | Justificar dirección de aristas y representación | Secciones siguientes. |
+
+## Interfaz
+
+El frontend consume la API y dibuja la red con Cytoscape, con un diseño por niveles (dagre):
+los productos quedan arriba y sus requisitos debajo, en el sentido de las flechas. Tiene dos
+formularios (registrar elemento y registrar dependencia), la leyenda de colores por tipo y la
+lista de dependencias en forma de frase.
+
+![Interfaz de AbastecePyme con la red de dependencias](docs/interfaz.png)
 
 ## Dirección de las aristas
 
@@ -118,6 +131,13 @@ backend/
 │   └── dependency_catalog/     Reglas de AbastecePyme sobre el grafo
 ├── infrastructure/             Repositorio en memoria
 └── tests/                      Pruebas por capa
+
+frontend/src/app/
+├── app.ts / app.html / app.css  Pantalla principal: formularios, red y lista
+└── Graph/
+    ├── graphView.ts            Dibujo del grafo con Cytoscape (diseño dagre)
+    ├── models/                 Tipos que reflejan el contrato de la API
+    └── services/               Cliente HTTP del backend
 ```
 
 Las dependencias van siempre hacia adentro: `api → application → domain`.
@@ -169,7 +189,8 @@ Un catálogo vacío responde `200` con listas vacías, no `404`.
 
 ## Cómo ejecutarlo
 
-Requisitos: **Python 3.10 o superior** y **Node.js** (versión LTS).
+Requisitos: **Python 3.10 o superior** y **Node.js 22.22.3 o superior** (o 24.15+), que es lo que
+exige Angular CLI.
 
 **Backend** (puerto 8000)
 
