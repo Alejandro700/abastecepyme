@@ -1,12 +1,7 @@
-"""Endpoints del Feature 1: catálogo de dependencias.
+"""Endpoints del catálogo de dependencias (Feature 1).
 
-El router solo traduce: convierte una petición HTTP en una llamada al caso de
-uso y el resultado en JSON. No valida reglas ni captura errores de negocio;
-de eso se encargan `domain/` y `api/errors.py` respectivamente.
-
-Que los endpoints sean de tres líneas no es pereza: es la señal de que la
-lógica está donde corresponde. Este archivo se podría reescribir para otro
-framework web sin tocar nada más del sistema.
+El router solo traduce HTTP a casos de uso; las reglas viven en `domain/`
+y los errores se convierten en `api/errors.py`.
 """
 
 from typing import Annotated
@@ -29,11 +24,9 @@ from .schemas import (
 
 router = APIRouter(prefix="/api", tags=["catálogo"])
 
-# Alias para no repetir la firma completa en cada endpoint.
 ServicioCatalogo = Annotated[CatalogService, Depends(get_catalog_service)]
 
-# Respuestas de error documentadas en OpenAPI. Sin esto, /docs solo mostraría
-# el caso feliz y quien consuma la API no sabría qué esperar cuando falle.
+# Respuestas de error que se muestran en /docs.
 ERRORES_ALTA_ELEMENTO = {
     status.HTTP_409_CONFLICT: {
         "model": ErrorResponse,
@@ -62,11 +55,7 @@ ERRORES_ALTA_DEPENDENCIA = {
 
 
 def _a_respuesta_elemento(elemento: Elemento) -> ElementoResponse:
-    """Convierte la entidad de dominio en su representación HTTP.
-
-    El mapeo es explícito y no automático: así el dominio puede sumar campos
-    internos sin que se filtren a la API por accidente.
-    """
+    """Convierte la entidad de dominio en su representación HTTP."""
     return ElementoResponse(id=elemento.id, tipo=elemento.tipo)
 
 
@@ -87,11 +76,6 @@ def _a_respuesta_red(red: RedDependencias) -> RedResponse:
     )
 
 
-# ----------------------------------------------------------------------
-# Elementos
-# ----------------------------------------------------------------------
-
-
 @router.post(
     "/elementos",
     response_model=ElementoResponse,
@@ -99,13 +83,12 @@ def _a_respuesta_red(red: RedDependencias) -> RedResponse:
     summary="Registrar un producto, insumo o proveedor",
     responses=ERRORES_ALTA_ELEMENTO,
 )
+
+
 def crear_elemento(
     cuerpo: CrearElementoRequest, servicio: ServicioCatalogo
 ) -> ElementoResponse:
-    """Da de alta un elemento del catálogo.
-
-    Devuelve 201 y no 200: se creó un recurso nuevo.
-    """
+    """Da de alta un elemento del catálogo y devuelve 201."""
     return _a_respuesta_elemento(servicio.crear_elemento(cuerpo.id, cuerpo.tipo))
 
 
@@ -114,18 +97,11 @@ def crear_elemento(
     response_model=list[ElementoResponse],
     summary="Listar todos los elementos",
 )
+
+
 def listar_elementos(servicio: ServicioCatalogo) -> list[ElementoResponse]:
-    """Lista los elementos en orden de alta.
-
-    Un catálogo vacío devuelve 200 con `[]`, no 404: "no hay nada cargado" es
-    una respuesta correcta, no un recurso inexistente.
-    """
+    """Lista los elementos en orden de alta. Un catálogo vacío devuelve `[]`."""
     return [_a_respuesta_elemento(e) for e in servicio.listar_elementos()]
-
-
-# ----------------------------------------------------------------------
-# Dependencias
-# ----------------------------------------------------------------------
 
 
 @router.post(
@@ -135,6 +111,8 @@ def listar_elementos(servicio: ServicioCatalogo) -> list[ElementoResponse]:
     summary="Registrar que un elemento requiere a otro",
     responses=ERRORES_ALTA_DEPENDENCIA,
 )
+
+
 def crear_dependencia(
     cuerpo: CrearDependenciaRequest, servicio: ServicioCatalogo
 ) -> DependenciaResponse:
@@ -149,14 +127,11 @@ def crear_dependencia(
     response_model=list[DependenciaResponse],
     summary="Listar todas las dependencias",
 )
+
+
 def listar_dependencias(servicio: ServicioCatalogo) -> list[DependenciaResponse]:
     """Lista las dependencias en orden estable."""
     return [_a_respuesta_dependencia(d) for d in servicio.listar_dependencias()]
-
-
-# ----------------------------------------------------------------------
-# Red completa
-# ----------------------------------------------------------------------
 
 
 @router.get(
@@ -164,10 +139,8 @@ def listar_dependencias(servicio: ServicioCatalogo) -> list[DependenciaResponse]
     response_model=RedResponse,
     summary="Obtener la red completa de dependencias",
 )
-def obtener_red(servicio: ServicioCatalogo) -> RedResponse:
-    """Devuelve elementos y dependencias juntos, listos para dibujar.
 
-    Un solo endpoint en vez de dos llamadas encadenadas: garantiza que toda
-    dependencia apunte a elementos presentes en la misma respuesta.
-    """
+
+def obtener_red(servicio: ServicioCatalogo) -> RedResponse:
+    """Devuelve elementos y dependencias juntos, listos para dibujar la red."""
     return _a_respuesta_red(servicio.obtener_red())

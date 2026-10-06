@@ -1,11 +1,10 @@
-
 from enum import Enum
 
 from .errors import TipoElementoInvalidoError
 
 
 class TipoElemento(str, Enum):
-
+    """Clases de elemento que admite el catálogo."""
 
     PRODUCTO = "PRODUCTO"
     INSUMO = "INSUMO"
@@ -17,6 +16,7 @@ class TipoElemento(str, Enum):
 
     @classmethod
     def desde_texto(cls, valor: object) -> "TipoElemento":
+        """Convierte un texto en tipo, tolerando mayúsculas y espacios."""
 
         if isinstance(valor, cls):
             return valor
@@ -25,6 +25,5 @@ class TipoElemento(str, Enum):
         try:
             return cls(valor.strip().upper())
         except ValueError:
-            # `from None` corta el encadenamiento con el ValueError interno de
-            # Enum: al usuario le sirve el mensaje de negocio, no el de stdlib.
+            # `from None` oculta el ValueError interno del Enum.
             raise TipoElementoInvalidoError(valor, cls.valores()) from None

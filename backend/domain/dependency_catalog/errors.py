@@ -1,6 +1,3 @@
-
-
-
 class CatalogoError(Exception):
     """Error base del catálogo. Permite capturar todo con un solo except."""
 
@@ -10,6 +7,7 @@ class IdElementoInvalidoError(CatalogoError):
 
 
 class TipoElementoInvalidoError(CatalogoError):
+    """El tipo no es PRODUCTO, INSUMO ni PROVEEDOR."""
 
     def __init__(self, valor: object, tipos_validos: tuple[str, ...]) -> None:
         self.valor = valor
@@ -21,6 +19,7 @@ class TipoElementoInvalidoError(CatalogoError):
 
 
 class ElementoNoEncontradoError(CatalogoError):
+    """El elemento no está registrado en el catálogo."""
 
     def __init__(self, id_elemento: str) -> None:
         self.id_elemento = id_elemento
@@ -28,7 +27,7 @@ class ElementoNoEncontradoError(CatalogoError):
 
 
 class ElementoDuplicadoError(CatalogoError):
-
+    """Ya existe un elemento con ese id (sin distinguir mayúsculas)."""
 
     def __init__(self, id_solicitado: str, id_existente: str) -> None:
         self.id_solicitado = id_solicitado
@@ -45,6 +44,7 @@ class ElementoDuplicadoError(CatalogoError):
 
 
 class DependenciaDuplicadaError(CatalogoError):
+    """La dependencia ya estaba registrada."""
 
     def __init__(self, origen_id: str, destino_id: str) -> None:
         self.origen_id = origen_id
@@ -55,7 +55,7 @@ class DependenciaDuplicadaError(CatalogoError):
 
 
 class AutodependenciaError(CatalogoError):
-
+    """Un elemento no puede requerirse a sí mismo."""
 
     def __init__(self, id_elemento: str) -> None:
         self.id_elemento = id_elemento

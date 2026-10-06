@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from domain.graph import (
@@ -15,7 +13,6 @@ from domain.graph import (
 
 @pytest.fixture
 def grafo() -> DirectedGraph:
-
     return DirectedGraph()
 
 
@@ -30,17 +27,11 @@ def grafo_abc() -> DirectedGraph:
     return g
 
 
-# ----------------------------------------------------------------------
-# Node
-# ----------------------------------------------------------------------
-
-
 class TestNode:
     def test_nodo_valido_conserva_su_id(self):
         assert Node("A").id == "A"
 
     def test_dos_nodos_con_el_mismo_id_son_iguales(self):
-        # Igualdad por valor: es lo que permite usarlos en sets.
         assert Node("A") == Node("A")
         assert len({Node("A"), Node("A")}) == 1
 
@@ -64,19 +55,12 @@ class TestNode:
             Node(no_texto)  # type: ignore[arg-type]
 
 
-# ----------------------------------------------------------------------
-# Edge
-# ----------------------------------------------------------------------
-
-
 class TestEdge:
     def test_guarda_origen_y_destino(self):
         arista = Edge("A", "B")
         assert (arista.source_id, arista.target_id) == ("A", "B")
 
     def test_la_direccion_importa(self):
-        # A -> B no es lo mismo que B -> A: es la decisión fundacional del
-        # proyecto ("A requiere B"), y el test la deja escrita.
         assert Edge("A", "B") != Edge("B", "A")
 
     def test_rechaza_extremos_mal_formados(self):
@@ -84,11 +68,6 @@ class TestEdge:
             Edge("", "B")
         with pytest.raises(InvalidNodeIdError):
             Edge("A", "  ")
-
-
-# ----------------------------------------------------------------------
-# DirectedGraph: nodos
-# ----------------------------------------------------------------------
 
 
 class TestAgregarNodos:
@@ -114,13 +93,11 @@ class TestAgregarNodos:
         grafo.add_edge("A", "B")
         with pytest.raises(DuplicateNodeError):
             grafo.add_node(Node("A"))
-        # Lo importante del rechazo: el estado previo queda intacto.
         assert grafo.node_count() == 2
         assert grafo.edge_count() == 1
 
     def test_el_id_distingue_mayusculas(self, grafo):
-        # El grafo genérico NO normaliza: 'A' y 'a' son nodos distintos.
-        # La unicidad sin distinguir mayúsculas es regla del catálogo.
+        # El grafo no normaliza: 'A' y 'a' son nodos distintos.
         grafo.add_node(Node("A"))
         grafo.add_node(Node("a"))
         assert grafo.node_count() == 2
@@ -140,11 +117,6 @@ class TestAgregarNodos:
             grafo.add_node("A")  # type: ignore[arg-type]
 
 
-# ----------------------------------------------------------------------
-# DirectedGraph: aristas
-# ----------------------------------------------------------------------
-
-
 class TestAgregarAristas:
     def test_agrega_una_arista(self, grafo):
         grafo.add_node(Node("A"))
@@ -155,8 +127,6 @@ class TestAgregarAristas:
         assert grafo.edge_count() == 1
 
     def test_la_arista_es_dirigida(self, grafo_abc):
-        # Existe A -> B, pero no B -> A. Sin esto, el análisis de impacto de
-        # F2 daría resultados en ambos sentidos y no significaría nada.
         assert grafo_abc.has_edge("A", "B")
         assert grafo_abc.has_edge("B", "A") is False
 
@@ -176,8 +146,6 @@ class TestAgregarAristas:
             grafo.add_edge("A", "B")
 
     def test_no_crea_nodos_implicitos(self, grafo):
-        # Si vincular creara los nodos que faltan, se podrían registrar
-        # dependencias contra elementos inventados.
         grafo.add_node(Node("A"))
         with pytest.raises(NodeNotFoundError):
             grafo.add_edge("A", "Z")
@@ -188,12 +156,10 @@ class TestAgregarAristas:
             grafo_abc.add_edge("", "B")
 
     def test_has_edge_no_lanza_con_nodos_inexistentes(self, grafo):
-        # Es una consulta, no una escritura: responde False y no explota.
         assert grafo.has_edge("X", "Y") is False
 
     def test_el_grafo_admite_autociclo(self, grafo):
-        # Decisión explícita: A -> A es topológicamente válido. Prohibirlo es
-        # una regla de negocio y vive en DependencyCatalog, no acá.
+        # A -> A es válido en el grafo; prohibirlo es regla del catálogo.
         grafo.add_node(Node("A"))
         grafo.add_edge("A", "A")
         assert grafo.has_edge("A", "A")
@@ -204,19 +170,12 @@ class TestAgregarAristas:
         grafo.add_edge("A", "D")
         grafo.add_edge("A", "B")
         grafo.add_edge("A", "C")
-        # Nodos en orden de inserción; destinos ordenados alfabéticamente.
-        # Sin este orden, la salida dependería del hash del set y los tests
-        # de la API serían intermitentes.
+        # Nodos en orden de inserción; destinos en orden alfabético.
         assert [str(e) for e in grafo.edges()] == [
             "A -> B",
             "A -> C",
             "A -> D",
         ]
-
-
-# ----------------------------------------------------------------------
-# DirectedGraph: vecindad y vista transpuesta
-# ----------------------------------------------------------------------
 
 
 class TestVecindad:
@@ -225,7 +184,6 @@ class TestVecindad:
         assert grafo_abc.successors("C") == frozenset()
 
     def test_predecesores_son_quienes_lo_requieren(self, grafo_abc):
-        # La vista transpuesta: es la que usará el análisis de impacto de F2.
         assert grafo_abc.predecessors("B") == frozenset({"A"})
         assert grafo_abc.predecessors("A") == frozenset()
 
@@ -234,7 +192,6 @@ class TestVecindad:
             grafo.add_node(Node(node_id))
         grafo.add_edge("A", "C")
         grafo.add_edge("B", "C")
-        # Una sola llamada a add_edge escribe en ambas direcciones.
         assert grafo.predecessors("C") == frozenset({"A", "B"})
         assert grafo.successors("A") == frozenset({"C"})
         assert grafo.successors("B") == frozenset({"C"})
@@ -246,8 +203,6 @@ class TestVecindad:
             grafo.predecessors("Z")
 
     def test_la_vecindad_devuelta_no_puede_mutar_el_grafo(self, grafo_abc):
-        # Devuelve frozenset justamente para esto: si devolviera el set
-        # interno, quien consulta podría corromper la estructura.
         vecinos = grafo_abc.successors("A")
         assert isinstance(vecinos, frozenset)
         with pytest.raises(AttributeError):

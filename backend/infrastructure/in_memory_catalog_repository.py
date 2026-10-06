@@ -1,12 +1,10 @@
-
-
 from domain.dependency_catalog import CatalogRepository, DependencyCatalog
 
 
 class InMemoryCatalogRepository(CatalogRepository):
+    """Guarda el catálogo en memoria; los datos se pierden al reiniciar."""
 
     def __init__(self, catalogo: DependencyCatalog | None = None) -> None:
-
         if catalogo is not None and not isinstance(catalogo, DependencyCatalog):
             raise TypeError(
                 f"Se esperaba un DependencyCatalog, se recibió "
@@ -15,11 +13,9 @@ class InMemoryCatalogRepository(CatalogRepository):
         self._catalogo = catalogo if catalogo is not None else DependencyCatalog()
 
     def obtener(self) -> DependencyCatalog:
-
         return self._catalogo
 
     def guardar(self, catalogo: DependencyCatalog) -> None:
-
         if not isinstance(catalogo, DependencyCatalog):
             raise TypeError(
                 f"Se esperaba un DependencyCatalog, se recibió "
@@ -28,7 +24,6 @@ class InMemoryCatalogRepository(CatalogRepository):
         self._catalogo = catalogo
 
     def reiniciar(self) -> None:
-
         self._catalogo = DependencyCatalog()
 
     def __repr__(self) -> str:

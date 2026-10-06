@@ -1,5 +1,3 @@
-
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -20,7 +18,6 @@ app = FastAPI(
         "'para producir Silla necesito Madera'."
     ),
 )
-
 
 app.add_middleware(
     CORSMiddleware,

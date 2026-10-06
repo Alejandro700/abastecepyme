@@ -1,11 +1,10 @@
-
-
 from dataclasses import dataclass
 
 from .errors import InvalidNodeIdError
 
 
 def validate_node_id(value: object, field_name: str = "id") -> str:
+    """Comprueba que el id sea un texto no vacío y sin espacios en los extremos."""
 
     if not isinstance(value, str):
         raise InvalidNodeIdError(
@@ -22,13 +21,12 @@ def validate_node_id(value: object, field_name: str = "id") -> str:
 
 @dataclass(frozen=True, slots=True)
 class Node:
-
+    """Nodo del grafo, identificado por su id."""
 
     id: str
 
     def __post_init__(self) -> None:
-        # Se ejecuta apenas termina de construirse la instancia. Valida el id
-        # aquí para que sea imposible que exista un Node inválido en memoria.
+        # Valida al construir: no puede existir un Node inválido.
         validate_node_id(self.id, field_name="El id del nodo")
 
     def __str__(self) -> str:

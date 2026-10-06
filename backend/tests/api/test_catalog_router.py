@@ -1,5 +1,3 @@
-
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -17,7 +15,7 @@ def cliente() -> TestClient:
     )
     with TestClient(app) as test_client:
         yield test_client
-    # Limpieza: `app` es un objeto de módulo compartido por todos los tests.
+    # `app` es compartido por todos los tests: se limpian los overrides.
     app.dependency_overrides.clear()
 
 
@@ -49,7 +47,6 @@ class TestSistema:
         assert respuesta.json() == {"status": "ok"}
 
     def test_la_documentacion_se_genera(self, cliente):
-        # OpenAPI automático: es parte de por qué se eligió FastAPI.
         assert cliente.get("/openapi.json").status_code == 200
 
 
@@ -63,7 +60,6 @@ class TestCrearElemento:
 
     @pytest.mark.parametrize("tipo", ["producto", "  Producto  ", "PRODUCTO"])
     def test_acepta_el_tipo_escrito_de_cualquier_forma(self, cliente, tipo):
-        # La tolerancia vive en el dominio; el schema no la duplica.
         respuesta = cliente.post("/api/elementos", json={"id": "Silla", "tipo": tipo})
         assert respuesta.status_code == 201
         assert respuesta.json()["tipo"] == "PRODUCTO"
@@ -90,8 +86,6 @@ class TestCrearElemento:
         assert respuesta.json()["error_code"] == "TIPO_INVALIDO"
 
     def test_falta_un_campo_devuelve_422_con_el_mismo_contrato(self, cliente):
-        # Sin el manejador propio, FastAPI devolvería {"detail": [...]} y el
-        # frontend tendría que manejar dos formas distintas de error.
         respuesta = cliente.post("/api/elementos", json={"id": "Silla"})
         assert respuesta.status_code == 422
         cuerpo = respuesta.json()
@@ -101,7 +95,6 @@ class TestCrearElemento:
 
 class TestListarElementos:
     def test_catalogo_vacio_devuelve_200_con_lista_vacia(self, cliente):
-        # Decisión del contrato: "no hay nada" no es un 404.
         respuesta = cliente.get("/api/elementos")
         assert respuesta.status_code == 200
         assert respuesta.json() == []
@@ -120,7 +113,6 @@ class TestCrearDependencia:
         assert respuesta.status_code == 201
         cuerpo = respuesta.json()
         assert cuerpo["origen_id"] == "Silla"
-        # La frase hace explícita la dirección para quien consuma la API.
         assert cuerpo["frase"] == (
             "Para producir/preparar Silla necesito MaderasDelSur"
         )
@@ -147,7 +139,6 @@ class TestCrearDependencia:
         assert respuesta.json()["error_code"] == "AUTODEPENDENCIA"
 
     def test_el_error_trae_detalles_utiles(self, cliente_cargado):
-        # `details` permite que el frontend resalte el campo exacto.
         respuesta = cliente_cargado.post(
             "/api/dependencias", json={"origen_id": "Mesa", "destino_id": "Madera"}
         )
@@ -177,7 +168,6 @@ class TestRed:
         assert cuerpo["total_dependencias"] == 3
 
     def test_la_red_es_consistente(self, cliente_cargado):
-        # Ninguna arista apunta a un nodo ausente: si no, Cytoscape falla.
         cuerpo = cliente_cargado.get("/api/red").json()
         ids = {e["id"] for e in cuerpo["elementos"]}
         for dependencia in cuerpo["dependencias"]:
@@ -196,6 +186,4 @@ class TestRed:
 
 class TestAislamiento:
     def test_cada_test_arranca_con_catalogo_limpio(self, cliente):
-        # Si este test corre después de los que cargan datos y sigue viendo
-        # cero, el aislamiento por dependency_overrides funciona.
         assert cliente.get("/api/elementos").json() == []

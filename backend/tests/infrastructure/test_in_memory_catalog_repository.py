@@ -1,5 +1,3 @@
-
-
 import pytest
 
 from domain.dependency_catalog import (
@@ -26,12 +24,9 @@ def catalogo_cargado() -> DependencyCatalog:
 
 class TestContrato:
     def test_implementa_el_puerto(self, repositorio):
-        # Si esto falla, `application/` no podría usarlo sin acoplarse a la
-        # implementación concreta.
         assert isinstance(repositorio, CatalogRepository)
 
     def test_el_puerto_no_se_puede_instanciar(self):
-        # Es una clase abstracta: obliga a implementar `obtener` y `guardar`.
         with pytest.raises(TypeError):
             CatalogRepository()  # type: ignore[abstract]
 
@@ -40,15 +35,12 @@ class TestContrato:
             def obtener(self) -> DependencyCatalog:
                 return DependencyCatalog()
 
-        # Falta `guardar`: Python lo impide antes de que llegue a producción.
         with pytest.raises(TypeError):
             RepositorioAMedias()  # type: ignore[abstract]
 
 
 class TestObtener:
     def test_repositorio_nuevo_devuelve_catalogo_vacio(self, repositorio):
-        # Nunca devuelve None: el sistema arranca siempre en estado válido y
-        # nadie tiene que preguntar si el catálogo existe.
         catalogo = repositorio.obtener()
         assert isinstance(catalogo, DependencyCatalog)
         assert catalogo.total_elementos() == 0
@@ -57,8 +49,6 @@ class TestObtener:
         assert repositorio.obtener() is repositorio.obtener()
 
     def test_dos_repositorios_no_comparten_estado(self):
-        # Cada instancia tiene su propio catálogo: sin esto, los tests se
-        # contaminarían entre sí y dos clientes verían los mismos datos.
         uno, otro = InMemoryCatalogRepository(), InMemoryCatalogRepository()
         uno.obtener().registrar_elemento("Silla", TipoElemento.PRODUCTO)
         assert otro.obtener().total_elementos() == 0
@@ -77,9 +67,7 @@ class TestGuardar:
         assert repositorio.obtener().total_elementos() == 0
 
     def test_los_cambios_sobre_el_catalogo_obtenido_persisten(self, repositorio):
-        # Comportamiento propio de esta implementación: devuelve el objeto
-        # vivo. Queda testeado para que sea una decisión visible y no una
-        # sorpresa el día que se cambie a base de datos, donde NO será así.
+        # Devuelve el objeto vivo; con una base de datos no sería así.
         repositorio.obtener().registrar_elemento("Silla", TipoElemento.PRODUCTO)
         assert repositorio.obtener().total_elementos() == 1
 
@@ -97,7 +85,6 @@ class TestGuardar:
 
 class TestConstruccion:
     def test_admite_un_catalogo_inicial(self, catalogo_cargado):
-        # Es lo que permitirá precargar datos de demostración.
         repositorio = InMemoryCatalogRepository(catalogo_cargado)
         assert repositorio.obtener() is catalogo_cargado
 
@@ -113,6 +100,4 @@ class TestReiniciar:
         assert repositorio.obtener().total_elementos() == 0
 
     def test_no_forma_parte_del_puerto(self):
-        # Utilidad de esta implementación, no del contrato: una base de datos
-        # no tendría por qué ofrecer un "borrar todo".
         assert not hasattr(CatalogRepository, "reiniciar")
