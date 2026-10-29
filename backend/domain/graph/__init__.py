@@ -8,11 +8,13 @@ from .errors import (
     NodeNotFoundError,
 )
 from .node import Node
+from .visit import Visit
 
 __all__ = [
     "DirectedGraph",
     "Edge",
     "Node",
+    "Visit",
     "GraphError",
     "InvalidNodeIdError",
     "NodeNotFoundError",

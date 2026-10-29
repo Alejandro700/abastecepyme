@@ -1,6 +1,9 @@
+from collections import deque
+
 from .edge import Edge
 from .errors import DuplicateEdgeError, DuplicateNodeError, NodeNotFoundError
 from .node import Node, validate_node_id
+from .visit import Visit
 
 
 class DirectedGraph:
@@ -73,6 +76,41 @@ class DirectedGraph:
     def predecessors(self, node_id: str) -> frozenset[str]:
         self._require_node(node_id)
         return frozenset(self._predecessors[node_id])
+
+    def descendants(self, node_id: str) -> tuple[Visit, ...]:
+        """Todo lo que `node_id` alcanza siguiendo las flechas, directa o indirectamente."""
+        return self._breadth_first(node_id, self._successors)
+
+    def ancestors(self, node_id: str) -> tuple[Visit, ...]:
+        """Todo lo que alcanza a `node_id` siguiendo las flechas, directa o indirectamente."""
+        return self._breadth_first(node_id, self._predecessors)
+
+    def _breadth_first(
+        self, start_id: str, neighbors: dict[str, set[str]]
+    ) -> tuple[Visit, ...]:
+        """Recorrido en anchura: cada nodo se visita una vez, por su camino más corto."""
+        self._require_node(start_id)
+
+        visited = {start_id}
+        queue = deque([Visit(node_id=start_id, depth=0, path=(start_id,))])
+        result: list[Visit] = []
+
+        while queue:
+            current = queue.popleft()
+            # Vecinos ordenados: el resultado es siempre el mismo.
+            for neighbor_id in sorted(neighbors[current.node_id]):
+                if neighbor_id in visited:
+                    continue
+                visited.add(neighbor_id)
+                visit = Visit(
+                    node_id=neighbor_id,
+                    depth=current.depth + 1,
+                    path=current.path + (neighbor_id,),
+                )
+                result.append(visit)
+                queue.append(visit)
+
+        return tuple(result)
 
     def _require_node(self, node_id: str) -> None:
         if node_id not in self._nodes:

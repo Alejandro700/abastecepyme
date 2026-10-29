@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from domain.dependency_catalog import (
+    Alcance,
     CatalogRepository,
     Dependencia,
     Elemento,
@@ -64,3 +65,9 @@ class CatalogService:
             elementos=catalogo.listar_elementos(),
             dependencias=catalogo.listar_dependencias(),
         )
+
+    def consultar_impacto(self, id_elemento: object) -> Alcance:
+        return self._repositorio.obtener().impacto_de(id_elemento)
+
+    def consultar_requisitos(self, id_elemento: object) -> Alcance:
+        return self._repositorio.obtener().requisitos_de(id_elemento)

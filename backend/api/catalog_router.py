@@ -83,8 +83,6 @@ def _a_respuesta_red(red: RedDependencias) -> RedResponse:
     summary="Registrar un producto, insumo o proveedor",
     responses=ERRORES_ALTA_ELEMENTO,
 )
-
-
 def crear_elemento(
     cuerpo: CrearElementoRequest, servicio: ServicioCatalogo
 ) -> ElementoResponse:
@@ -97,8 +95,6 @@ def crear_elemento(
     response_model=list[ElementoResponse],
     summary="Listar todos los elementos",
 )
-
-
 def listar_elementos(servicio: ServicioCatalogo) -> list[ElementoResponse]:
     """Lista los elementos en orden de alta. Un catálogo vacío devuelve `[]`."""
     return [_a_respuesta_elemento(e) for e in servicio.listar_elementos()]
@@ -111,8 +107,6 @@ def listar_elementos(servicio: ServicioCatalogo) -> list[ElementoResponse]:
     summary="Registrar que un elemento requiere a otro",
     responses=ERRORES_ALTA_DEPENDENCIA,
 )
-
-
 def crear_dependencia(
     cuerpo: CrearDependenciaRequest, servicio: ServicioCatalogo
 ) -> DependenciaResponse:
@@ -127,8 +121,6 @@ def crear_dependencia(
     response_model=list[DependenciaResponse],
     summary="Listar todas las dependencias",
 )
-
-
 def listar_dependencias(servicio: ServicioCatalogo) -> list[DependenciaResponse]:
     """Lista las dependencias en orden estable."""
     return [_a_respuesta_dependencia(d) for d in servicio.listar_dependencias()]
@@ -139,8 +131,6 @@ def listar_dependencias(servicio: ServicioCatalogo) -> list[DependenciaResponse]
     response_model=RedResponse,
     summary="Obtener la red completa de dependencias",
 )
-
-
 def obtener_red(servicio: ServicioCatalogo) -> RedResponse:
     """Devuelve elementos y dependencias juntos, listos para dibujar la red."""
     return _a_respuesta_red(servicio.obtener_red())
