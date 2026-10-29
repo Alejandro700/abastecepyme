@@ -1,6 +1,8 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
-from domain.dependency_catalog import TipoElemento
+from domain.dependency_catalog import SentidoConsulta, TipoElemento
 
 _TIPOS = ", ".join(TipoElemento.valores())
 
@@ -65,6 +67,46 @@ class RedResponse(BaseModel):
     dependencias: list[DependenciaResponse]
     total_elementos: int
     total_dependencias: int
+
+
+class ElementoAlcanzadoResponse(BaseModel):
+    """Elemento alcanzado por una consulta, con la cadena que lo explica."""
+
+    id: str
+    tipo: TipoElemento
+    nivel: int = Field(
+        ...,
+        description="1 si la relación es directa, 2 si pasa por otro elemento, etc.",
+    )
+    cadena: list[str] = Field(
+        ...,
+        description=(
+            "Camino más corto, en el sentido de las flechas: cada elemento "
+            "requiere al siguiente."
+        ),
+    )
+    explicacion: str = Field(..., description="La cadena en lenguaje natural.")
+
+
+class AlcanceResponse(BaseModel):
+    """Resultado de consultar el impacto o los requisitos de un elemento."""
+
+    consultado: ElementoResponse
+    sentido: SentidoConsulta
+    estado: Literal["CON_IMPACTO", "SIN_IMPACTO", "CON_REQUISITOS", "SIN_REQUISITOS"] = (
+        Field(
+            ...,
+            description=(
+                "Distingue un elemento que afecta una cadena (o necesita una) "
+                "de uno que no tiene dependencias en ese sentido."
+            ),
+        )
+    )
+    mensaje: str
+    total: int
+    alcanzados: list[ElementoAlcanzadoResponse] = Field(
+        ..., description="En orden de cercanía: primero los directos."
+    )
 
 
 class ErrorResponse(BaseModel):

@@ -1,3 +1,4 @@
+from .alcance import Alcance, ElementoAlcanzado, SentidoConsulta
 from .dependencia import Dependencia
 from .dependency_catalog import DependencyCatalog
 from .elemento import Elemento, clave_de, normalizar_id
@@ -19,6 +20,9 @@ __all__ = [
     "Elemento",
     "TipoElemento",
     "Dependencia",
+    "Alcance",
+    "ElementoAlcanzado",
+    "SentidoConsulta",
     "normalizar_id",
     "clave_de",
     "CatalogoError",

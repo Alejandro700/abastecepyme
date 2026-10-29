@@ -3,7 +3,9 @@ from ..graph import (
     DuplicateEdgeError,
     DuplicateNodeError,
     Node,
+    Visit,
 )
+from .alcance import Alcance, ElementoAlcanzado, SentidoConsulta
 from .dependencia import Dependencia
 from .elemento import Elemento, clave_de, normalizar_id
 from .errors import (
@@ -82,6 +84,49 @@ class DependencyCatalog:
 
     def total_dependencias(self) -> int:
         return self._grafo.edge_count()
+
+    def impacto_de(self, id_elemento: object) -> Alcance:
+        """Qué se afecta si el elemento deja de estar disponible.
+
+        Se afectan quienes lo requieren, directa o indirectamente: se recorre
+        la red contra el sentido de las flechas.
+        """
+        elemento = self._resolver(id_elemento)
+        visitas = self._grafo.ancestors(elemento.id)
+        return self._armar_alcance(elemento, SentidoConsulta.IMPACTO, visitas)
+
+    def requisitos_de(self, id_elemento: object) -> Alcance:
+        """Qué necesita el elemento, directa o indirectamente.
+
+        Se recorre la red a favor del sentido de las flechas.
+        """
+        elemento = self._resolver(id_elemento)
+        visitas = self._grafo.descendants(elemento.id)
+        return self._armar_alcance(elemento, SentidoConsulta.REQUISITOS, visitas)
+
+    def _armar_alcance(
+        self,
+        consultado: Elemento,
+        sentido: SentidoConsulta,
+        visitas: tuple[Visit, ...],
+    ) -> Alcance:
+        alcanzados = []
+        for visita in visitas:
+            # La cadena siempre se lee a favor de las flechas ("A requiere B").
+            # En el impacto el recorrido va al revés, así que se invierte.
+            cadena = visita.path
+            if sentido is SentidoConsulta.IMPACTO:
+                cadena = tuple(reversed(cadena))
+            alcanzados.append(
+                ElementoAlcanzado(
+                    elemento=self._elementos[clave_de(visita.node_id)],
+                    nivel=visita.depth,
+                    cadena=cadena,
+                )
+            )
+        return Alcance(
+            consultado=consultado, sentido=sentido, alcanzados=tuple(alcanzados)
+        )
 
     def _resolver(self, id_elemento: object) -> Elemento:
         limpio = normalizar_id(id_elemento)
