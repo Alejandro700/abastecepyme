@@ -144,6 +144,12 @@ button.secundario:hover:not(:disabled) {
   background: var(--marca-suave);
 }
 
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .titulo-con-accion {
   display: flex;
   justify-content: space-between;
