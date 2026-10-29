@@ -74,6 +74,27 @@
 
       <button type="button" (click)="crearDependencia()">Agregar dependencia</button>
     </section>
+
+    <section class="tarjeta">
+      <h2>Análisis de impacto</h2>
+
+      <label class="campo">
+        <span>Elemento a consultar</span>
+        <select [value]="consultaId()" (change)="consultaId.set(capturar($event))">
+          <option value="">— elegir —</option>
+          @for (elemento of red().elementos; track elemento.id) {
+            <option [value]="elemento.id">{{ elemento.id }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="acciones">
+        <button type="button" (click)="consultar('IMPACTO')">Si falla, ¿qué se afecta?</button>
+        <button type="button" class="secundario" (click)="consultar('REQUISITOS')">
+          ¿Qué necesita?
+        </button>
+      </div>
+    </section>
   </div>
 
   <section class="tarjeta">
@@ -93,7 +114,7 @@
     @if (red().total_elementos === 0) {
       <p class="vacio">Todavía no hay elementos cargados. Registra el primero para ver la red.</p>
     } @else {
-      <app-graph-view [red]="red()" />
+      <app-graph-view [red]="red()" [resaltado]="resaltado()" />
 
       <div class="leyenda">
         <span class="punto punto--producto"></span> Producto
@@ -102,6 +123,10 @@
       </div>
     }
   </section>
+
+  @if (consulta(); as alcance) {
+    <app-impacto-resultado class="tarjeta" [alcance]="alcance" (cerrar)="consulta.set(null)" />
+  }
 
   @if (red().dependencias.length > 0) {
     <section class="tarjeta">

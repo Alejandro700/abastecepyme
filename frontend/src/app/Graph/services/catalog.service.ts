@@ -2,7 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 
-import { ApiError, Dependencia, Elemento, Red, TipoElemento } from '../models/catalog.models';
+import {
+  Alcance,
+  ApiError,
+  Dependencia,
+  Elemento,
+  Red,
+  TipoElemento,
+} from '../models/catalog.models';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
@@ -26,6 +33,18 @@ export class CatalogService {
         origen_id: origenId,
         destino_id: destinoId,
       })
+      .pipe(catchError(this.traducirError));
+  }
+
+  consultarImpacto(id: string): Observable<Alcance> {
+    return this.http
+      .get<Alcance>(`${this.base}/elementos/${encodeURIComponent(id)}/impacto`)
+      .pipe(catchError(this.traducirError));
+  }
+
+  consultarRequisitos(id: string): Observable<Alcance> {
+    return this.http
+      .get<Alcance>(`${this.base}/elementos/${encodeURIComponent(id)}/requisitos`)
       .pipe(catchError(this.traducirError));
   }
 
