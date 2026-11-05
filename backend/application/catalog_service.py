@@ -5,6 +5,7 @@ from domain.dependency_catalog import (
     CatalogRepository,
     Dependencia,
     Elemento,
+    OrdenProduccion,
 )
 
 
@@ -71,3 +72,6 @@ class CatalogService:
 
     def consultar_requisitos(self, id_elemento: object) -> Alcance:
         return self._repositorio.obtener().requisitos_de(id_elemento)
+
+    def consultar_orden(self, id_elemento: object | None = None) -> OrdenProduccion:
+        return self._repositorio.obtener().orden_de_preparacion(id_elemento)

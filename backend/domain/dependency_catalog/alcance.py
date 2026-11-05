@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from .cadena import describir_cadena
 from .elemento import Elemento
 
 
@@ -21,8 +22,7 @@ class ElementoAlcanzado:
 
     def explicacion(self) -> str:
         """La cadena en lenguaje natural: 'Silla requiere Madera, que requiere ...'."""
-        primero, *resto = self.cadena
-        return f"{primero} requiere " + ", que requiere ".join(resto)
+        return describir_cadena(self.cadena)
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api import catalog_router, impact_router, registrar_manejadores
+from api import (
+    catalog_router,
+    impact_router,
+    production_router,
+    registrar_manejadores,
+)
 
 ORIGENES_PERMITIDOS = [
     "http://localhost:4200",
@@ -10,10 +15,10 @@ ORIGENES_PERMITIDOS = [
 
 app = FastAPI(
     title="AbastecePyme — API de dependencias",
-    version="2.0.0",
+    version="3.0.0",
     description=(
         "Catálogo de dependencias entre productos, insumos y proveedores, "
-        "y análisis de impacto sobre esa red.\n\n"
+        "análisis de impacto y orden de producción sobre esa red.\n\n"
         "**Dirección de la arista:** `origen → destino` significa que el "
         "origen REQUIERE al destino. Ejemplo: Silla → Madera se lee "
         "'para producir Silla necesito Madera'."
@@ -30,6 +35,7 @@ app.add_middleware(
 registrar_manejadores(app)
 app.include_router(catalog_router)
 app.include_router(impact_router)
+app.include_router(production_router)
 
 
 @app.get("/health", tags=["sistema"], summary="Verificar que la API responde")

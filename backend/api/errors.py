@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from domain.dependency_catalog import (
     AutodependenciaError,
     CatalogoError,
+    CicloDetectadoError,
     DependenciaDuplicadaError,
     ElementoDuplicadoError,
     ElementoNoEncontradoError,
@@ -18,6 +19,7 @@ MAPEO_ERRORES: tuple[tuple[type[CatalogoError], int, str], ...] = (
     (ElementoNoEncontradoError, status.HTTP_404_NOT_FOUND, "ELEMENTO_NO_ENCONTRADO"),
     (ElementoDuplicadoError, status.HTTP_409_CONFLICT, "ELEMENTO_DUPLICADO"),
     (DependenciaDuplicadaError, status.HTTP_409_CONFLICT, "DEPENDENCIA_DUPLICADA"),
+    (CicloDetectadoError, status.HTTP_409_CONFLICT, "CICLO_DETECTADO"),
     (AutodependenciaError, HTTP_422, "AUTODEPENDENCIA"),
     (TipoElementoInvalidoError, HTTP_422, "TIPO_INVALIDO"),
     (IdElementoInvalidoError, HTTP_422, "ID_INVALIDO"),
