@@ -1,7 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { GraphView } from './Graph/graphView';
+import { ImpactoResultado } from './Impacto/impactoResultado';
 import { CatalogService } from './Graph/services/catalog.service';
-import { Red, TipoElemento, TIPOS_ELEMENTO } from './Graph/models/catalog.models';
+import {
+  Alcance,
+  Red,
+  Resaltado,
+  SentidoConsulta,
+  TipoElemento,
+  TIPOS_ELEMENTO,
+} from './Graph/models/catalog.models';
 
 const RED_VACIA: Red = {
   elementos: [],
@@ -12,7 +20,7 @@ const RED_VACIA: Red = {
 
 @Component({
   selector: 'app-root',
-  imports: [GraphView],
+  imports: [GraphView, ImpactoResultado],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -31,6 +39,30 @@ export class App {
 
   readonly origenId = signal('');
   readonly destinoId = signal('');
+
+  readonly consultaId = signal('');
+  readonly consulta = signal<Alcance | null>(null);
+
+  readonly resaltado = computed<Resaltado | null>(() => {
+    const alcance = this.consulta();
+    if (!alcance) {
+      return null;
+    }
+
+    const aristas = new Set<string>();
+    for (const alcanzado of alcance.alcanzados) {
+      for (let i = 0; i < alcanzado.cadena.length - 1; i++) {
+        aristas.add(`${alcanzado.cadena[i]}->${alcanzado.cadena[i + 1]}`);
+      }
+    }
+
+    return {
+      sentido: alcance.sentido,
+      foco: alcance.consultado.id,
+      elementos: alcance.alcanzados.map((alcanzado) => alcanzado.id),
+      aristas: [...aristas],
+    };
+  });
 
   constructor() {
     this.recargar();
@@ -61,6 +93,7 @@ export class App {
     this.catalogo.crearElemento(id, this.nuevoTipo()).subscribe({
       next: (elemento) => {
         this.nuevoId.set('');
+        this.consulta.set(null);
         this.mostrarAviso(`Se registró ${elemento.tipo} "${elemento.id}".`);
         this.recargar();
       },
@@ -80,8 +113,31 @@ export class App {
       next: (dependencia) => {
         this.origenId.set('');
         this.destinoId.set('');
+        this.consulta.set(null);
         this.mostrarAviso(dependencia.frase);
         this.recargar();
+      },
+      error: (fallo: Error) => this.mostrarError(fallo.message),
+    });
+  }
+
+  consultar(sentido: SentidoConsulta): void {
+    const id = this.consultaId().trim();
+    if (!id) {
+      this.mostrarError('Elige el elemento que quieres consultar.');
+      return;
+    }
+
+    const consulta =
+      sentido === 'IMPACTO'
+        ? this.catalogo.consultarImpacto(id)
+        : this.catalogo.consultarRequisitos(id);
+
+    consulta.subscribe({
+      next: (alcance) => {
+        this.consulta.set(alcance);
+        this.error.set(null);
+        this.aviso.set(null);
       },
       error: (fallo: Error) => this.mostrarError(fallo.message),
     });

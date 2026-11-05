@@ -1,7 +1,7 @@
 import { Component, ElementRef, effect, input, OnDestroy, viewChild } from '@angular/core';
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import { Red, TipoElemento } from './models/catalog.models';
+import { Red, Resaltado, TipoElemento } from './models/catalog.models';
 
 cytoscape.use(dagre);
 
@@ -28,6 +28,7 @@ const COLOR_POR_TIPO: Record<TipoElemento, string> = {
 })
 export class GraphView implements OnDestroy {
   readonly red = input.required<Red>();
+  readonly resaltado = input<Resaltado | null>(null);
 
   private readonly lienzo = viewChild.required<ElementRef<HTMLDivElement>>('lienzo');
   private cy?: cytoscape.Core;
@@ -35,8 +36,10 @@ export class GraphView implements OnDestroy {
   constructor() {
     effect(() => {
       const red = this.red();
+      const resaltado = this.resaltado();
       const contenedor = this.lienzo().nativeElement;
       this.dibujar(contenedor, red);
+      this.aplicarResaltado(resaltado);
     });
   }
 
@@ -86,6 +89,27 @@ export class GraphView implements OnDestroy {
             'curve-style': 'bezier',
           },
         },
+        { selector: '.atenuado', style: { opacity: 0.25 } },
+        {
+          selector: 'node.foco',
+          style: { 'border-width': 4, 'border-color': '#dc2626' },
+        },
+        {
+          selector: 'node.alcanzado',
+          style: { 'border-width': 3, 'border-color': '#f59e0b' },
+        },
+        {
+          selector: 'edge.resaltada',
+          style: { width: 3.5, 'line-color': '#dc2626', 'target-arrow-color': '#dc2626' },
+        },
+        {
+          selector: 'node.requisitos',
+          style: { 'border-color': '#0f1c6b' },
+        },
+        {
+          selector: 'edge.requisitos',
+          style: { 'line-color': '#0f1c6b', 'target-arrow-color': '#0f1c6b' },
+        },
       ],
       // Los productos quedan arriba y sus requisitos debajo, siguiendo la dirección de las flechas.
       layout: {
@@ -98,6 +122,34 @@ export class GraphView implements OnDestroy {
       minZoom: 0.3,
       maxZoom: 2.5,
     });
+  }
+
+  private aplicarResaltado(resaltado: Resaltado | null): void {
+    const cy = this.cy;
+    if (!cy || !resaltado) {
+      return;
+    }
+
+    const alcanzados = new Set(resaltado.elementos);
+    const aristas = new Set(resaltado.aristas);
+
+    cy.nodes().forEach((nodo) => {
+      if (nodo.id() === resaltado.foco) {
+        nodo.addClass('foco');
+      } else if (alcanzados.has(nodo.id())) {
+        nodo.addClass('alcanzado');
+      } else {
+        nodo.addClass('atenuado');
+      }
+    });
+
+    cy.edges().forEach((arista) => {
+      arista.addClass(aristas.has(arista.id()) ? 'resaltada' : 'atenuado');
+    });
+
+    if (resaltado.sentido === 'REQUISITOS') {
+      cy.elements().addClass('requisitos');
+    }
   }
 
   ngOnDestroy(): void {
