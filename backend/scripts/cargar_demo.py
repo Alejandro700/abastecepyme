@@ -39,6 +39,9 @@ DEPENDENCIAS = [
 # Se deja sin cargar a propósito para registrarla en vivo durante la demo.
 PENDIENTE_EN_VIVO = ("Barniz", "QuimicosAndinos")
 
+# Registrarla en vivo crea un ciclo (Silla -> Madera -> MaderasDelSur -> Silla).
+CICLO_EN_VIVO = ("MaderasDelSur", "Silla")
+
 
 def enviar(cliente: httpx.Client, ruta: str, cuerpo: dict, etiqueta: str) -> None:
     respuesta = cliente.post(ruta, json=cuerpo)
@@ -77,6 +80,10 @@ def main() -> None:
     print(
         "Para registrar en vivo en la demo: "
         f"{PENDIENTE_EN_VIVO[0]} requiere {PENDIENTE_EN_VIVO[1]}."
+    )
+    print(
+        "Para provocar un ciclo en vivo: "
+        f"{CICLO_EN_VIVO[0]} requiere {CICLO_EN_VIVO[1]}."
     )
 
 

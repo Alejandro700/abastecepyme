@@ -1,3 +1,6 @@
+from .cadena import describir_cadena
+
+
 class CatalogoError(Exception):
     """Error base del catálogo. Permite capturar todo con un solo except."""
 
@@ -61,4 +64,17 @@ class AutodependenciaError(CatalogoError):
         self.id_elemento = id_elemento
         super().__init__(
             f"Un elemento no puede requerirse a sí mismo: '{id_elemento}'."
+        )
+
+
+class CicloDetectadoError(CatalogoError):
+    """Las dependencias se contradicen: forman un ciclo y no hay orden válido."""
+
+    def __init__(self, ciclo: tuple[str, ...], bloqueados: tuple[str, ...]) -> None:
+        self.ciclo = ciclo
+        self.bloqueados = bloqueados
+        self.explicacion = describir_cadena(ciclo)
+        super().__init__(
+            f"Las dependencias forman un ciclo y no existe un orden de "
+            f"preparación válido: {self.explicacion}."
         )

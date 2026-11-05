@@ -25,3 +25,12 @@ class DuplicateEdgeError(GraphError):
         super().__init__(
             f"La arista '{source_id}' -> '{target_id}' ya existe en el grafo."
         )
+
+
+class CycleError(GraphError):
+    """El grafo tiene un ciclo, así que no admite un orden de construcción."""
+
+    def __init__(self, cycle: tuple[str, ...], blocked: tuple[str, ...]) -> None:
+        self.cycle = cycle
+        self.blocked = blocked
+        super().__init__("El grafo contiene un ciclo: " + " -> ".join(cycle) + ".")

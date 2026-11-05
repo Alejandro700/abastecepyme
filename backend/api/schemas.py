@@ -109,6 +109,30 @@ class AlcanceResponse(BaseModel):
     )
 
 
+class EtapaResponse(BaseModel):
+    """Elementos que se pueden preparar a la vez."""
+
+    numero: int = Field(..., description="1 es lo primero que se prepara.")
+    elementos: list[ElementoResponse] = Field(
+        ..., description="No dependen entre sí: pueden prepararse en paralelo."
+    )
+
+
+class OrdenResponse(BaseModel):
+    """Orden válido de preparación, agrupado por etapas."""
+
+    objetivo: ElementoResponse | None = Field(
+        None, description="Elemento para el que se pidió el orden; nulo si es toda la red."
+    )
+    mensaje: str
+    total_elementos: int
+    total_etapas: int
+    etapas: list[EtapaResponse]
+    secuencia: list[ElementoResponse] = Field(
+        ..., description="Las etapas aplanadas: un orden de trabajo de una sola línea."
+    )
+
+
 class ErrorResponse(BaseModel):
     """Formato único de error de la API."""
 

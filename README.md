@@ -2,15 +2,15 @@
   <img src="frontend/public/logo.png" alt="AbastecePyme: conecta, analiza, produce" width="360">
 </p>
 
-# AbastecePyme — Catálogo de dependencias y análisis de impacto
+# AbastecePyme — Dependencias, impacto y orden de producción
 
 AbastecePyme fabrica productos sencillos y depende de insumos y proveedores. Este
 proyecto modela esa red de dependencias como un **grafo dirigido** para que el
 equipo pueda registrarla, consultarla y, en las siguientes entregas, analizar qué
 se afecta cuando algo falla.
 
-Este README documenta la **Feature 1: catálogo de dependencias** y la **Feature 2: análisis de
-impacto**.
+Este README documenta la **Feature 1: catálogo de dependencias**, la **Feature 2: análisis de
+impacto** y la **Feature 3: orden y ciclos de producción**.
 
 - **Backend:** Python + FastAPI (`backend/`).
 - **Frontend:** Angular + Cytoscape (`frontend/`).
@@ -108,6 +108,82 @@ Ejemplo de respuesta de `GET /api/elementos/MaderasDelSur/impacto`:
 ```
 
 (El ejemplo omite `Mesa` por brevedad.)
+
+## Qué permite la Feature 3
+
+| Requisito del brief | Cómo se cumple |
+|---|---|
+| Generar un orden de trabajo válido si no hay ciclos | `GET /api/orden` (toda la red) y `GET /api/elementos/{id}/orden` (solo lo que necesita un elemento). El orden viene agrupado por etapas. |
+| Detectar y reportar un ciclo con información útil | `409` con `CICLO_DETECTADO`: trae el ciclo concreto, una frase que lo explica y los elementos bloqueados. |
+| No presentar un orden falso si hay contradicción | Con un ciclo la respuesta no incluye `etapas` ni `secuencia`. |
+| Pruebas de aceptación de un caso acíclico y uno cíclico | `backend/tests/api/test_production_router.py`: `TestAceptacionCasoAciclico` y `TestAceptacionCasoCiclico`. |
+
+## Orden de preparación
+
+El orden sale de la misma dirección de las flechas: si **A requiere B, B se prepara antes que A**.
+Por eso lo primero son los elementos que no requieren nada (normalmente proveedores) y lo último,
+los productos.
+
+El algoritmo es el ordenamiento topológico por etapas (algoritmo de Kahn), implementado a mano en
+`DirectedGraph.build_layers`. Antes de codificarlo se trazó qué elementos quedan sin requisitos
+pendientes en cada paso:
+
+1. Se cuenta cuántos requisitos pendientes tiene cada elemento.
+2. Los que tienen cero se pueden preparar: forman la etapa actual.
+3. Al prepararlos, se descuenta un requisito a todo el que los necesitaba.
+4. Se repite con los que quedaron en cero, hasta terminar.
+
+Con los datos de demostración:
+
+| Etapa | Se pueden preparar (sin requisitos pendientes) | Qué se desbloquea |
+|---|---|---|
+| 1 | Barniz, FerreteriaCentral, MaderasDelSur, QuimicosAndinos | Madera y Tornillos quedan libres; a Mesa le quedan 2 requisitos. |
+| 2 | Madera, Tornillos | Silla y Mesa quedan libres. |
+| 3 | Mesa, Silla | — |
+
+- Los elementos de una misma etapa **no dependen entre sí**: se pueden preparar en paralelo.
+- Dentro de cada etapa se ordenan alfabéticamente, así que el resultado es siempre el mismo.
+- El costo es prácticamente lineal en el tamaño de la red (O(V + E), más el orden alfabético
+  de cada etapa).
+- `GET /api/elementos/{id}/orden` ordena solo lo que ese elemento necesita, y el elemento va
+  solo en la última etapa. Un ciclo ajeno a esa cadena no lo bloquea.
+
+## Ciclos
+
+Un ciclo (A requiere B, que requiere A) es una contradicción: ninguno de los dos puede
+prepararse primero. El catálogo permite registrarlos (decisión de la Feature 1) y esta feature
+los detecta.
+
+**Cómo se detectan.** Si al terminar el proceso anterior quedan elementos con requisitos
+pendientes, no se pueden ordenar: están en un ciclo o dependen de uno. Para dar un ciclo
+concreto, se parte de esos elementos bloqueados: cada uno tiene al menos un requisito también
+bloqueado, así que seguirlos obliga a repetir un elemento, y ahí se cierra el ciclo.
+
+**Qué se responde.** Un `409` con el formato de error de siempre, y nunca un orden:
+
+```json
+{
+  "error_code": "CICLO_DETECTADO",
+  "message": "Las dependencias forman un ciclo y no existe un orden de preparación válido: Madera requiere MaderasDelSur, que requiere Silla, que requiere Madera.",
+  "details": {
+    "ciclo": ["Madera", "MaderasDelSur", "Silla", "Madera"],
+    "bloqueados": ["Madera", "MaderasDelSur", "Mesa", "Silla"],
+    "explicacion": "Madera requiere MaderasDelSur, que requiere Silla, que requiere Madera"
+  }
+}
+```
+
+- `ciclo`: un ciclo concreto y cerrado (el primer elemento es también el último).
+- `bloqueados`: todo lo que no se puede ordenar, o sea el ciclo y lo que depende de él (aquí,
+  Mesa).
+- Si hay más de un ciclo, se reporta uno (siempre el mismo); al corregirlo, una nueva consulta
+  muestra el siguiente.
+
+Se eligió `409` y no `200` porque es una contradicción entre los datos y lo que se pide, y así
+una respuesta con orden nunca se confunde con una alerta.
+
+**Para provocarlo en la demostración:** con los datos de demo, registrar que `MaderasDelSur`
+requiere `Silla`.
 
 ## Interfaz
 
@@ -215,7 +291,7 @@ combinación de mayúsculas y con espacios alrededor.
 ```
 backend/
 ├── main.py                     Arranque de FastAPI y CORS
-├── api/                        Capa HTTP: rutas (catálogo e impacto), esquemas y errores
+├── api/                        Capa HTTP: rutas (catálogo, impacto y producción), esquemas y errores
 ├── application/                Casos de uso (CatalogService)
 ├── domain/
 │   ├── graph/                  Grafo dirigido genérico con recorridos, sin reglas de negocio
@@ -257,6 +333,8 @@ Con el backend corriendo, la documentación interactiva está en
 | `GET` | `/api/red` | Devuelve elementos, dependencias y totales juntos. |
 | `GET` | `/api/elementos/{id}/impacto` | Qué se afecta si el elemento deja de estar disponible. |
 | `GET` | `/api/elementos/{id}/requisitos` | Qué necesita el elemento, directa o indirectamente. |
+| `GET` | `/api/orden` | Orden de preparación de toda la red, por etapas (409 si hay un ciclo). |
+| `GET` | `/api/elementos/{id}/orden` | Orden para producir un elemento, con solo lo que necesita. |
 | `GET` | `/health` | Comprueba que la API responde. |
 
 Un catálogo vacío responde `200` con listas vacías, no `404`.
@@ -277,6 +355,7 @@ Un catálogo vacío responde `200` con listas vacías, no `404`.
 | `ELEMENTO_DUPLICADO` | 409 | El id ya está registrado (sin distinguir mayúsculas). |
 | `DEPENDENCIA_DUPLICADA` | 409 | La dependencia ya existe. |
 | `AUTODEPENDENCIA` | 422 | Origen y destino son el mismo elemento. |
+| `CICLO_DETECTADO` | 409 | Las dependencias forman un ciclo; `details` trae el ciclo y los bloqueados. |
 | `TIPO_INVALIDO` | 422 | El tipo no es `PRODUCTO`, `INSUMO` ni `PROVEEDOR`. |
 | `ID_INVALIDO` | 422 | Id solo con espacios o de más de 120 caracteres. |
 | `CUERPO_INVALIDO` | 422 | Falta un campo, el id llega vacío o no es texto, o el JSON no tiene el formato esperado. |
@@ -326,20 +405,22 @@ cd backend
 pytest
 ```
 
-Hay 202 pruebas automatizadas, organizadas por capa:
+Hay 260 pruebas automatizadas, organizadas por capa:
 
 - `tests/domain/`: el grafo (nodos, aristas, vecindad y recorridos, incluidos ciclos y
-  caminos múltiples) y las reglas del catálogo, con sus consultas de impacto y requisitos.
+  caminos múltiples, capas de orden y ciclos) y las reglas del catálogo, con sus consultas de
+  impacto, requisitos y orden de preparación.
 - `tests/application/`: los casos de uso, incluido que no se persiste cuando el
   dominio rechaza una operación.
 - `tests/infrastructure/`: el contrato del repositorio en memoria.
 - `tests/api/`: los endpoints, códigos HTTP y formato de error, incluidos los tres casos de
-  la consulta de impacto.
+  la consulta de impacto y las pruebas de aceptación del orden (caso acíclico y caso cíclico).
 
 ## Cómo está preparado para crecer
 
-Las entregas se apoyan en lo que ya existe, sin reescribirlo. La Feature 2 lo muestra: el
-impacto y los requisitos son dos recorridos nuevos sobre el mismo grafo, sin cambiar el modelo.
+Las entregas se apoyan en lo que ya existe, sin reescribirlo. Las Features 2 y 3 lo muestran:
+el impacto, los requisitos y el orden son algoritmos nuevos sobre el mismo grafo, sin cambiar el
+modelo.
 
 - Los análisis nuevos se agregan como algoritmos sobre `DirectedGraph`, que ya
   expone sucesores, predecesores y recorridos.

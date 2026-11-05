@@ -1,4 +1,5 @@
 from ..graph import (
+    CycleError,
     DirectedGraph,
     DuplicateEdgeError,
     DuplicateNodeError,
@@ -11,10 +12,12 @@ from .elemento import Elemento, clave_de, normalizar_id
 from .errors import (
     AutodependenciaError,
     CatalogoError,
+    CicloDetectadoError,
     DependenciaDuplicadaError,
     ElementoDuplicadoError,
     ElementoNoEncontradoError,
 )
+from .produccion import EtapaProduccion, OrdenProduccion
 
 
 class DependencyCatalog:
@@ -103,6 +106,34 @@ class DependencyCatalog:
         elemento = self._resolver(id_elemento)
         visitas = self._grafo.descendants(elemento.id)
         return self._armar_alcance(elemento, SentidoConsulta.REQUISITOS, visitas)
+
+    def orden_de_preparacion(self, id_elemento: object | None = None) -> OrdenProduccion:
+        """Orden válido de preparación, o CicloDetectadoError si hay contradicción.
+
+        Cada elemento aparece después de todo lo que requiere. Sin `id_elemento`
+        se ordena toda la red; con él, solo lo necesario para ese elemento.
+        Nunca se devuelve un orden falso: si hay un ciclo, se levanta el error.
+        """
+        objetivo = None
+        alcance = None
+        if id_elemento is not None:
+            objetivo = self._resolver(id_elemento)
+            necesarios = self._grafo.descendants(objetivo.id)
+            alcance = {objetivo.id, *(visita.node_id for visita in necesarios)}
+
+        try:
+            capas = self._grafo.build_layers(alcance)
+        except CycleError as error:
+            raise CicloDetectadoError(error.cycle, error.blocked) from None
+
+        etapas = tuple(
+            EtapaProduccion(
+                numero=numero,
+                elementos=tuple(self._elementos[clave_de(n)] for n in capa),
+            )
+            for numero, capa in enumerate(capas, start=1)
+        )
+        return OrdenProduccion(objetivo=objetivo, etapas=etapas)
 
     def _armar_alcance(
         self,

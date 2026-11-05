@@ -1,6 +1,7 @@
 from .directed_graph import DirectedGraph
 from .edge import Edge
 from .errors import (
+    CycleError,
     DuplicateEdgeError,
     DuplicateNodeError,
     GraphError,
@@ -16,6 +17,7 @@ __all__ = [
     "Node",
     "Visit",
     "GraphError",
+    "CycleError",
     "InvalidNodeIdError",
     "NodeNotFoundError",
     "DuplicateNodeError",
