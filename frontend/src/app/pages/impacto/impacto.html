@@ -1,0 +1,121 @@
+<div class="contenedor pagina">
+  <header class="pagina-cabecera">
+    <span class="antetitulo">Simulador</span>
+    <h1>¿Qué pasa si algo falla?</h1>
+    <p>
+      Elige un proveedor, insumo o producto y simula que deja de estar disponible. Verás en rojo lo
+      que falla y en ámbar todo lo que se detiene por eso.
+    </p>
+  </header>
+
+  <app-estado-red>
+    <form class="tarjeta controles" (submit)="consultar($event)">
+      <div class="campo">
+        <label for="elemento">Elemento</label>
+        <select id="elemento" [value]="elegido()" (change)="elegido.set(valor($event))">
+          <option value="">Elige un elemento</option>
+          @for (e of store.red().elementos; track e.id) {
+            <option [value]="e.id">{{ e.id }} ({{ nombreTipo[e.tipo] }})</option>
+          }
+        </select>
+      </div>
+      <div class="campo">
+        <span class="etiqueta" id="sentido">Consulta</span>
+        <div class="segmentado" role="group" aria-labelledby="sentido">
+          <button
+            type="button"
+            [attr.aria-pressed]="sentido() === 'IMPACTO'"
+            (click)="cambiarSentido('IMPACTO')"
+          >
+            Si falla
+          </button>
+          <button
+            type="button"
+            [attr.aria-pressed]="sentido() === 'REQUISITOS'"
+            (click)="cambiarSentido('REQUISITOS')"
+          >
+            Qué necesita
+          </button>
+        </div>
+      </div>
+      <div class="botones">
+        <button
+          class="boton"
+          [class.boton-peligro]="sentido() === 'IMPACTO'"
+          type="submit"
+          [disabled]="consultando()"
+        >
+          <svg lucideZap></svg>
+          {{ sentido() === 'IMPACTO' ? 'Simular falla' : 'Ver qué necesita' }}
+        </button>
+        @if (resultado()) {
+          <button class="boton boton-secundario" type="button" (click)="limpiar()">Limpiar</button>
+        }
+      </div>
+    </form>
+
+    @if (error()) {
+      <div class="alerta alerta-error espacio" role="alert">
+        <svg lucideTriangleAlert></svg>
+        <p>{{ error() }}</p>
+      </div>
+    }
+
+    <div class="resultado">
+      <div class="lienzo tarjeta">
+        <app-red-3d
+          [red]="store.red()"
+          [etapas]="store.etapas()"
+          [ciclo]="store.ciclo()?.ciclo ?? []"
+          [resaltado]="resaltado()"
+        />
+      </div>
+
+      <section class="tarjeta detalle" aria-live="polite">
+        @if (resultado(); as r) {
+          <div
+            class="alerta aparecer"
+            [class.alerta-aviso]="r.total && r.sentido === 'IMPACTO'"
+            [class.alerta-exito]="!r.total && r.sentido === 'IMPACTO'"
+          >
+            @if (r.total || r.sentido === 'REQUISITOS') {
+              <svg lucideTriangleAlert></svg>
+            } @else {
+              <svg lucideCircleCheck></svg>
+            }
+            <p>{{ r.mensaje }}</p>
+          </div>
+          @if (resumen().length) {
+            <ul class="conteo">
+              @for (c of resumen(); track c.tipo) {
+                <li>
+                  <strong>{{ c.total }}</strong>
+                  <span class="tipo tipo-{{ c.tipo }}">{{
+                    c.total === 1 ? nombreTipo[c.tipo] : nombreTipoPlural[c.tipo]
+                  }}</span>
+                </li>
+              }
+            </ul>
+          }
+          @for (g of niveles(); track g.nivel) {
+            <h3>{{ g.nivel === 1 ? 'Directamente' : 'En el nivel ' + g.nivel }}</h3>
+            <ul class="alcanzados">
+              @for (a of g.elementos; track a.id) {
+                <li>
+                  <span class="tipo tipo-{{ a.tipo }}">{{ a.id }}</span>
+                  <p class="texto-suave">{{ a.explicacion }}</p>
+                </li>
+              }
+            </ul>
+          }
+        } @else {
+          <h2>Elige qué simular</h2>
+          <p class="texto-suave">
+            Prueba con un proveedor: por ejemplo, ¿qué pasa si
+            <strong>{{ sugerencia() }}</strong> no entrega?
+          </p>
+        }
+      </section>
+    </div>
+  </app-estado-red>
+</div>

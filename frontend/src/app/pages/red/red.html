@@ -1,0 +1,116 @@
+<div class="contenedor pagina">
+  <header class="pagina-cabecera">
+    <span class="antetitulo">Red de abastecimiento</span>
+    <h1>Tu red, de un vistazo</h1>
+    <p>
+      Cada piso es una etapa de preparación: los proveedores abajo y los productos arriba. La flecha
+      apunta a lo que se necesita. Gira la vista, acércate y haz clic en un elemento.
+    </p>
+  </header>
+
+  <app-estado-red>
+    @if (store.ciclo(); as ciclo) {
+      <div class="alerta alerta-error ciclo" role="alert">
+        <svg lucideTriangleAlert></svg>
+        <p>
+          <strong>Dependencia circular:</strong> {{ ciclo.explicacion }}. Los pisos por etapa no se
+          pueden calcular y la red se muestra libre.
+          <a routerLink="/produccion">Ver detalle</a>
+        </p>
+      </div>
+    }
+
+    <div class="explorador">
+      <div class="lienzo tarjeta">
+        <app-red-3d
+          [red]="store.red()"
+          [etapas]="store.etapas()"
+          [ciclo]="store.ciclo()?.ciclo ?? []"
+          [seleccionado]="seleccionado()"
+          (seleccionar)="seleccionar($event)"
+        />
+        <ul class="leyenda" aria-label="Colores por tipo">
+          @for (t of tipos; track t) {
+            <li class="tipo tipo-{{ t }}">{{ nombreTipoPlural[t] }}</li>
+          }
+        </ul>
+      </div>
+
+      <aside class="panel tarjeta" aria-live="polite">
+        @if (elemento(); as e) {
+          <div class="panel-cabecera">
+            <div>
+              <span class="tipo tipo-{{ e.tipo }}">{{ nombreTipo[e.tipo] }}</span>
+              <h2>{{ e.id }}</h2>
+              @if (store.etapas().get(e.id); as etapa) {
+                <p class="texto-suave">Etapa {{ etapa }} de {{ store.orden()?.total_etapas }}</p>
+              }
+            </div>
+            <button class="cerrar" type="button" (click)="seleccionar(null)">
+              <svg lucideX></svg><span class="sr-only">Cerrar</span>
+            </button>
+          </div>
+
+          @if (errorPanel()) {
+            <p class="alerta alerta-error">{{ errorPanel() }}</p>
+          } @else if (!impacto()) {
+            <div class="girador"></div>
+          } @else {
+            <section>
+              <h3>Si falla, se afecta</h3>
+              @if (impacto()!.total) {
+                <ul class="lista">
+                  @for (a of impacto()!.alcanzados; track a.id) {
+                    <li>
+                      <span class="tipo tipo-{{ a.tipo }}">{{ a.id }}</span>
+                      <small>{{ a.nivel === 1 ? 'directo' : 'nivel ' + a.nivel }}</small>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="texto-suave">Nada. Ningún elemento depende de {{ e.id }}.</p>
+              }
+            </section>
+            <section>
+              <h3>Necesita</h3>
+              @if (requisitos()!.total) {
+                <ul class="lista">
+                  @for (a of requisitos()!.alcanzados; track a.id) {
+                    <li>
+                      <span class="tipo tipo-{{ a.tipo }}">{{ a.id }}</span>
+                      <small>{{ a.nivel === 1 ? 'directo' : 'nivel ' + a.nivel }}</small>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="texto-suave">Nada. Se puede preparar sin depender de otros.</p>
+              }
+            </section>
+            <a class="boton" [routerLink]="['/impacto']" [queryParams]="{ id: e.id }">
+              Simular su falla <svg lucideArrowRight></svg>
+            </a>
+          }
+        } @else {
+          <h2>Elige un elemento</h2>
+          <p class="texto-suave">
+            Haz clic en cualquier punto de la red para ver qué se afecta si falla y qué necesita.
+          </p>
+          <dl class="resumen">
+            <div>
+              <dt>Elementos</dt>
+              <dd>{{ store.red().total_elementos }}</dd>
+            </div>
+            <div>
+              <dt>Dependencias</dt>
+              <dd>{{ store.red().total_dependencias }}</dd>
+            </div>
+            <div>
+              <dt>Etapas</dt>
+              <dd>{{ store.orden()?.total_etapas ?? '—' }}</dd>
+            </div>
+          </dl>
+        }
+      </aside>
+    </div>
+  </app-estado-red>
+</div>

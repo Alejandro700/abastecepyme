@@ -1,0 +1,131 @@
+<!-- Un ejemplo concreto -->
+<section class="contenedor seccion ejemplo">
+  <div
+    class="diagrama tarjeta"
+    role="img"
+    aria-label="Ejemplo: falla MaderasDelSur; se afectan Madera, Silla y Mesa"
+  >
+    @for (piso of ejemplo; track piso.nombre) {
+      <div class="piso">
+        <span class="piso-nombre">{{ piso.nombre }}</span>
+        <ul>
+          @for (e of piso.elementos; track e.id) {
+            <li class="pastilla {{ e.estado }}">{{ e.id }}</li>
+          }
+        </ul>
+      </div>
+    }
+    <p class="leyenda">
+      <span class="pastilla falla">Falla</span>
+      <span class="pastilla afectado">Se detiene</span>
+      <span class="pastilla normal">Sigue igual</span>
+    </p>
+  </div>
+
+  <div>
+    <span class="antetitulo">Un ejemplo</span>
+    <h2>¿Qué pasa si MaderasDelSur no entrega?</h2>
+    <p class="texto-suave">
+      Una fábrica de muebles compra madera a <strong>MaderasDelSur</strong>. Si ese proveedor falla,
+      sin <strong>Madera</strong> no se pueden producir ni la <strong>Silla</strong> ni la
+      <strong>Mesa</strong>.
+    </p>
+    <p class="texto-suave">
+      Los tornillos y el barniz siguen disponibles, así que el equipo sabe exactamente dónde buscar
+      un proveedor alternativo y qué pedidos avisar.
+    </p>
+    <button class="boton" type="button" [disabled]="store.cargando()" (click)="probarEjemplo()">
+      Pruébalo con este ejemplo <svg lucideArrowRight></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Para quién es -->
+<section class="seccion seccion-alterna">
+  <div class="contenedor">
+    <header class="seccion-cabecera">
+      <span class="antetitulo">Para quién es</span>
+      <h2>Pensado para tu equipo</h2>
+      <p>Dos perfiles, una misma red: todos ven lo mismo y se actualiza al instante.</p>
+    </header>
+    <div class="perfiles">
+      @for (p of perfiles; track p.rol) {
+        <article class="tarjeta">
+          @if (p.icono === 'compras') {
+            <svg lucideShoppingCart class="icono"></svg>
+          } @else {
+            <svg lucideFactory class="icono"></svg>
+          }
+          <h3>{{ p.rol }}</h3>
+          <p class="texto-suave">{{ p.texto }}</p>
+          <ul>
+            @for (b of p.beneficios; track b) {
+              <li>{{ b }}</li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Conceptos clave -->
+<section class="contenedor seccion">
+  <header class="seccion-cabecera">
+    <span class="antetitulo">Conceptos clave</span>
+    <h2>Seis palabras para entenderlo todo</h2>
+  </header>
+  <dl class="conceptos">
+    @for (c of conceptos; track c.termino) {
+      <div class="tarjeta">
+        <dt>
+          @if (c.tipo) {
+            <span class="tipo tipo-{{ c.tipo }}">{{ c.termino }}</span>
+          } @else {
+            {{ c.termino }}
+          }
+        </dt>
+        <dd class="texto-suave">{{ c.texto }}</dd>
+      </div>
+    }
+  </dl>
+</section>
+
+<!-- Preguntas frecuentes -->
+<section class="seccion seccion-alterna">
+  <div class="contenedor angosto">
+    <header class="seccion-cabecera">
+      <span class="antetitulo">Preguntas frecuentes</span>
+      <h2>Lo que suelen preguntarnos</h2>
+    </header>
+    @for (p of preguntasFrecuentes; track p.pregunta) {
+      <details>
+        <summary>{{ p.pregunta }} <svg lucideChevronDown></svg></summary>
+        <p class="texto-suave">{{ p.respuesta }}</p>
+      </details>
+    }
+  </div>
+</section>
+
+<!-- Llamado final -->
+<section class="contenedor seccion">
+  <div class="llamado">
+    <h2>Empieza en menos de un minuto</h2>
+    <p>Carga el ejemplo o registra tu propia red y descubre tus puntos débiles hoy.</p>
+    <div class="acciones">
+      @if (store.vacia()) {
+        <button
+          class="boton boton-claro"
+          type="button"
+          [disabled]="store.cargando()"
+          (click)="empezar()"
+        >
+          Cargar datos de ejemplo
+        </button>
+      } @else {
+        <a class="boton boton-claro" routerLink="/red">Explorar mi red</a>
+      }
+      <a class="boton boton-borde" routerLink="/catalogo">Registrar mis datos</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,65 @@
+.controles {
+  display: grid;
+  gap: 0 20px;
+  align-items: end;
+  padding-bottom: 8px;
+}
+@media (min-width: 768px) {
+  .controles {
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+  }
+}
+.etiqueta {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+.botones {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.espacio {
+  margin-top: 16px;
+}
+.resultado {
+  display: grid;
+  gap: 20px;
+  margin-top: 20px;
+}
+@media (min-width: 1024px) {
+  .resultado {
+    grid-template-columns: 1fr 360px;
+  }
+}
+.lienzo {
+  padding: 0;
+  height: min(62vh, 560px);
+  min-height: 360px;
+  overflow: hidden;
+}
+.detalle h3 {
+  font-size: 0.875rem;
+  margin: 20px 0 8px;
+}
+.conteo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.alcanzados {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.alcanzados li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--borde);
+}
+.alcanzados p {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+}

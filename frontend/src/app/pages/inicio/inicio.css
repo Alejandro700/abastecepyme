@@ -1,0 +1,181 @@
+.portada {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding-block: 40px 32px;
+}
+@media (min-width: 960px) {
+  .portada {
+    grid-template-columns: 1fr 1.1fr;
+    gap: 48px;
+    padding-block: 72px 48px;
+  }
+}
+.bajada {
+  font-size: 1.125rem;
+  color: var(--texto-suave);
+  max-width: 48ch;
+}
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.garantias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+.garantias li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.garantias svg {
+  width: 16px;
+  height: 16px;
+  color: var(--marca);
+}
+
+.vista-previa {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  height: 340px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+@media (min-width: 960px) {
+  .vista-previa {
+    height: 420px;
+  }
+}
+.vista-previa figcaption {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  font-size: 0.8125rem;
+  color: var(--texto-suave);
+  pointer-events: none;
+}
+.hueco {
+  height: 100%;
+}
+
+.cifras {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+.cifras div {
+  padding: 20px 12px;
+  text-align: center;
+}
+.cifras div + div {
+  border-left: 1px solid var(--borde);
+}
+.cifras dt {
+  font-size: 0.8125rem;
+  color: var(--texto-suave);
+}
+.cifras dd {
+  margin: 4px 0 0;
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+  font-weight: 700;
+  color: var(--tinta);
+}
+.cifras .alerta-ciclo dd {
+  color: var(--falla);
+}
+
+.problema {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .problema {
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+}
+.preguntas {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.preguntas li {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+.preguntas svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--exito);
+}
+.preguntas div {
+  display: grid;
+  gap: 2px;
+}
+
+.pasos {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .pasos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.pasos li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.pasos p {
+  flex: 1;
+}
+.numero {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--marca-suave);
+}
+.icono {
+  width: 28px;
+  height: 28px;
+  color: var(--marca);
+  margin-bottom: 12px;
+}
+.ir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.ir svg {
+  width: 16px;
+  height: 16px;
+}

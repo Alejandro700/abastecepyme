@@ -18,7 +18,8 @@ const COLOR_POR_TIPO: Record<TipoElemento, string> = {
     `
       .lienzo {
         width: 100%;
-        height: 480px;
+        height: 100%;
+        min-height: 360px;
         background: #ffffff;
         border: 1px solid #e2e0f1;
         border-radius: 10px;

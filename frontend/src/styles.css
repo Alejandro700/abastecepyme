@@ -1,3 +1,5 @@
+/* ===== Sistema de diseño de AbastecePyme =====
+   Los colores salen del logo. Úsalos siempre por variable, no por valor. */
 :root {
   --marca: #6a45e6;
   --marca-oscuro: #4f2fc4;
@@ -7,12 +9,445 @@
   --texto-suave: #475569;
   --borde: #e2e0f1;
   --fondo: #f7f6fc;
+  --superficie: #ffffff;
+
   --producto: #6a45e6;
   --insumo: #16a34a;
   --proveedor: #ea580c;
+
+  --falla: #dc2626;
+  --falla-suave: #fef2f2;
+  --afectado: #f59e0b;
+  --afectado-suave: #fffbeb;
+  --exito: #16a34a;
+  --exito-suave: #f0fdf4;
+
+  --radio: 12px;
+  --radio-sm: 8px;
+  --sombra: 0 1px 2px rgb(15 28 107 / 0.04), 0 4px 16px rgb(15 28 107 / 0.06);
+  --ancho: 1200px;
+  --barra: 64px;
+
+  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--tinta);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  letter-spacing: -0.01em;
+}
+h1 {
+  font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+}
+h2 {
+  font-size: 1.375rem;
+}
+h3 {
+  font-size: 1.0625rem;
+}
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: var(--marca);
+}
+
+:focus-visible {
+  outline: 3px solid var(--marca);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ===== Diseño de página ===== */
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+@media (min-width: 768px) {
+  .contenedor {
+    padding: 0 32px;
+  }
+}
+
+.pagina {
+  padding-block: 32px 64px;
+}
+.pagina-cabecera {
+  margin-bottom: 28px;
+}
+.pagina-cabecera p {
+  color: var(--texto-suave);
+  max-width: 62ch;
+  margin: 0;
+}
+.antetitulo {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--marca);
+  margin-bottom: 8px;
+}
+.texto-suave {
+  color: var(--texto-suave);
+}
+
+/* ===== Botones ===== */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radio-sm);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  background: var(--marca);
+  color: #fff;
+}
+.boton:hover {
+  background: var(--marca-oscuro);
+}
+.boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.boton-secundario {
+  background: var(--superficie);
+  color: var(--tinta);
+  border-color: var(--borde);
+}
+.boton-secundario:hover {
+  background: var(--marca-suave);
+  border-color: var(--marca);
+}
+.boton-peligro {
+  background: var(--falla);
+}
+.boton-peligro:hover {
+  background: #b91c1c;
+}
+.boton-chico {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 0.8125rem;
+}
+.boton svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Selector de dos o tres opciones (por ejemplo, "Si falla" / "Qué necesita") */
+.segmentado {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  background: var(--marca-suave);
+  border-radius: var(--radio-sm);
+  flex-wrap: wrap;
+}
+.segmentado button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tinta);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.segmentado button[aria-pressed='true'] {
+  background: var(--superficie);
+  color: var(--marca);
+  box-shadow: var(--sombra);
+}
+
+/* ===== Tarjetas ===== */
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 24px;
+}
+.tarjeta > h2:first-child,
+.tarjeta > h3:first-child {
+  margin-top: 0;
+}
+
+/* ===== Formularios ===== */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.campo label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+.campo input,
+.campo select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+}
+.campo input:focus-visible,
+.campo select:focus-visible {
+  outline: 3px solid var(--marca-suave);
+  border-color: var(--marca);
+}
+.campo .ayuda {
+  font-size: 0.8125rem;
+  color: var(--texto-suave);
+}
+
+/* ===== Tabla ===== */
+.tabla-envoltura {
+  overflow-x: auto;
+}
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.tabla th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--borde);
+}
+.tabla td {
+  padding: 12px;
+  border-bottom: 1px solid var(--borde);
+}
+.tabla tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ===== Insignias por tipo ===== */
+.tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tipo::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tipo-PRODUCTO {
+  color: var(--producto);
+}
+.tipo-INSUMO {
+  color: var(--insumo);
+}
+.tipo-PROVEEDOR {
+  color: var(--proveedor);
+}
+
+/* ===== Alertas ===== */
+.alerta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--radio-sm);
+  border: 1px solid var(--borde);
+  background: var(--marca-suave);
+  color: var(--tinta);
+}
+.alerta > svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+.alerta p {
+  margin: 0;
+}
+.alerta-error {
+  background: var(--falla-suave);
+  border-color: #fecaca;
+  color: #7f1d1d;
+}
+.alerta-exito {
+  background: var(--exito-suave);
+  border-color: #bbf7d0;
+  color: #14532d;
+}
+.alerta-aviso {
+  background: var(--afectado-suave);
+  border-color: #fde68a;
+  color: #78350f;
+}
+
+/* ===== Cadena de elementos (A → B → C) ===== */
+.cadena {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cadena li {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--superficie);
+  border: 1px solid currentColor;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.cadena li + li::before {
+  content: '→';
+  margin: 0 8px 0 -2px;
+  color: var(--texto-suave);
+}
+
+/* ===== Carga ===== */
+.girador {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--marca-suave);
+  border-top-color: var(--marca);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animación de entrada para usar con animate.enter */
+.aparecer {
+  animation: aparecer 0.25s ease-out;
+}
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Etiquetas sobre los nodos de la red 3D (CSS2DRenderer) */
+.etiqueta-nodo {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.92);
+  border: 1px solid var(--borde);
+  color: var(--tinta);
+  font: 600 12px var(--fuente);
+  white-space: nowrap;
+  pointer-events: none;
+  display: inline-block;
+  transform: translateY(-22px);
+}
+.etiqueta-nodo.apagada {
+  opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Estado vacío dentro de la vista previa del inicio: sin tarjeta doble */
+.vista-previa app-estado-red {
+  display: block;
+  height: 100%;
+}
+.vista-previa .caja.tarjeta {
+  height: 100%;
+  border: 0;
+  justify-content: center;
+}
+
+/* ===== Secciones de páginas informativas ===== */
+.seccion {
+  padding-block: 56px;
+}
+.seccion-alterna {
+  background: var(--superficie);
+  border-block: 1px solid var(--borde);
+}
+.seccion-cabecera {
+  max-width: 640px;
+  margin: 0 auto 36px;
+  text-align: center;
+}
+.seccion-cabecera h2 {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+}
+.seccion-cabecera p {
+  color: var(--texto-suave);
+  margin: 0;
 }

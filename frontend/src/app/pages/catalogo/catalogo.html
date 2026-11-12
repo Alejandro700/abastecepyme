@@ -1,0 +1,193 @@
+<div class="contenedor pagina">
+  <header class="pagina-cabecera">
+    <span class="antetitulo">Compras</span>
+    <h1>Catálogo</h1>
+    <p>
+      Registra tus proveedores, insumos y productos, y qué necesita cada uno. Con eso AbastecePyme
+      calcula el impacto de una falla y el orden de producción.
+    </p>
+  </header>
+
+  <div class="rejilla">
+    <section class="tarjeta" aria-labelledby="titulo-elementos">
+      <div class="encabezado">
+        <h2 id="titulo-elementos">Elementos</h2>
+        <div class="segmentado" role="group" aria-label="Filtrar por tipo">
+          <button type="button" [attr.aria-pressed]="filtro() === null" (click)="filtro.set(null)">
+            Todos · {{ store.red().total_elementos }}
+          </button>
+          @for (t of tipos; track t) {
+            <button type="button" [attr.aria-pressed]="filtro() === t" (click)="filtro.set(t)">
+              {{ nombreTipoPlural[t] }} · {{ conteo()[t] }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <app-estado-red
+        [mostrarCatalogo]="false"
+        invitacion="Registra tu primer elemento con el formulario, o carga un ejemplo para explorar."
+      >
+        <div class="tabla-envoltura">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Tipo</th>
+                <th scope="col" class="num">Necesita</th>
+                <th scope="col" class="num">Lo usan</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of filas(); track f.id) {
+                <tr>
+                  <td class="nombre">{{ f.id }}</td>
+                  <td>
+                    <span class="tipo tipo-{{ f.tipo }}">{{ nombreTipo[f.tipo] }}</span>
+                  </td>
+                  <td class="num">{{ f.necesita }}</td>
+                  <td class="num">{{ f.loUsan }}</td>
+                  <td class="num">
+                    <a [routerLink]="['/impacto']" [queryParams]="{ id: f.id }">Simular falla</a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="texto-suave">No hay elementos de este tipo.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </app-estado-red>
+    </section>
+
+    <aside class="formularios">
+      <form class="tarjeta" (submit)="registrarElemento($event)" aria-labelledby="titulo-nuevo">
+        <h2 id="titulo-nuevo">Registra un elemento</h2>
+        <div class="campo">
+          <label for="nuevo-id">Nombre</label>
+          <input
+            id="nuevo-id"
+            autocomplete="off"
+            placeholder="Por ejemplo, Silla"
+            [value]="nuevoId()"
+            (input)="nuevoId.set(valor($event))"
+          />
+          <span class="ayuda">Sin distinguir mayúsculas: «Madera» y «madera» son el mismo.</span>
+        </div>
+        <div class="campo">
+          <label for="nuevo-tipo">Tipo</label>
+          <select
+            id="nuevo-tipo"
+            [value]="nuevoTipo()"
+            (change)="nuevoTipo.set($any(valor($event)))"
+          >
+            @for (t of tipos; track t) {
+              <option [value]="t">{{ nombreTipo[t] }}</option>
+            }
+          </select>
+        </div>
+        <button class="boton" type="submit" [disabled]="guardandoElemento()">
+          {{ guardandoElemento() ? 'Registrando…' : 'Registrar elemento' }}
+        </button>
+        @if (avisoElemento(); as a) {
+          <div class="alerta alerta-{{ a.tipo }} aviso" role="status">
+            @if (a.tipo === 'exito') {
+              <svg lucideCircleCheck></svg>
+            } @else {
+              <svg lucideTriangleAlert></svg>
+            }
+            <p>{{ a.texto }}</p>
+          </div>
+        }
+      </form>
+
+      <form class="tarjeta" (submit)="registrarDependencia($event)" aria-labelledby="titulo-dep">
+        <h2 id="titulo-dep">Registra una dependencia</h2>
+        <div class="campo">
+          <label for="origen">Para producir o preparar</label>
+          <select id="origen" [value]="origen()" (change)="origen.set(valor($event))">
+            <option value="">Elige un elemento</option>
+            @for (e of store.red().elementos; track e.id) {
+              <option [value]="e.id">{{ e.id }} ({{ nombreTipo[e.tipo] }})</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="destino">necesito</label>
+          <select id="destino" [value]="destino()" (change)="destino.set(valor($event))">
+            <option value="">Elige un elemento</option>
+            @for (e of store.red().elementos; track e.id) {
+              @if (e.id !== origen()) {
+                <option [value]="e.id">{{ e.id }} ({{ nombreTipo[e.tipo] }})</option>
+              }
+            }
+          </select>
+        </div>
+        @if (origen() && destino()) {
+          <p class="frase">
+            «Para producir/preparar <strong>{{ origen() }}</strong> necesito
+            <strong>{{ destino() }}</strong
+            >»
+          </p>
+        }
+        <button
+          class="boton"
+          type="submit"
+          [disabled]="guardandoDependencia() || store.red().total_elementos < 2"
+        >
+          {{ guardandoDependencia() ? 'Registrando…' : 'Registrar dependencia' }}
+        </button>
+        @if (avisoDependencia(); as a) {
+          <div class="alerta alerta-{{ a.tipo }} aviso" role="status">
+            @if (a.tipo === 'exito') {
+              <svg lucideCircleCheck></svg>
+            } @else {
+              <svg lucideTriangleAlert></svg>
+            }
+            <p>{{ a.texto }}</p>
+          </div>
+        }
+      </form>
+    </aside>
+
+    @if (store.red().total_dependencias) {
+      <section class="tarjeta dependencias" aria-labelledby="titulo-deps">
+        <h2 id="titulo-deps">Dependencias · {{ store.red().total_dependencias }}</h2>
+        <ul>
+          @for (d of store.red().dependencias; track d.origen_id + d.destino_id) {
+            <li>
+              <span>{{ d.frase }}</span>
+              <button
+                class="quitar"
+                type="button"
+                [disabled]="store.cargando()"
+                [attr.aria-label]="'Quitar: ' + d.frase"
+                (click)="store.quitarDependencia(d.origen_id, d.destino_id)"
+              >
+                Quitar
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="vaciar">
+      <div>
+        <h2>Empezar de cero</h2>
+        <p class="texto-suave">Borra todos los elementos y dependencias. No se puede deshacer.</p>
+      </div>
+      <button
+        class="boton boton-peligro"
+        type="button"
+        [disabled]="store.cargando()"
+        (click)="vaciar()"
+      >
+        Vaciar la red
+      </button>
+    </section>
+  </div>
+</div>

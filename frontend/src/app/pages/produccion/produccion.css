@@ -1,0 +1,147 @@
+.selector {
+  max-width: 320px;
+}
+.mensaje {
+  color: var(--texto-suave);
+}
+
+.etapas {
+  display: grid;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .etapas {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(220px, 1fr);
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+}
+.etapa {
+  position: relative;
+  padding: 20px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+.etapa-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.etapa-cabecera h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.numero {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--marca-suave);
+  color: var(--marca);
+  font-weight: 700;
+}
+.etapa ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pieza {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-left: 4px solid;
+  border-radius: var(--radio-sm);
+}
+.borde-PRODUCTO {
+  border-left-color: var(--producto);
+}
+.borde-INSUMO {
+  border-left-color: var(--insumo);
+}
+.borde-PROVEEDOR {
+  border-left-color: var(--proveedor);
+}
+.flecha {
+  position: absolute;
+  color: var(--marca);
+  width: 24px;
+  height: 24px;
+  left: 50%;
+  bottom: -30px;
+  transform: translateX(-50%) rotate(90deg);
+}
+@media (min-width: 768px) {
+  .flecha {
+    left: auto;
+    right: -30px;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.ciclo {
+  border-color: #fecaca;
+  background: var(--falla-suave);
+}
+.ciclo-cabecera {
+  display: flex;
+  gap: 16px;
+}
+.ciclo-cabecera > svg {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  color: var(--falla);
+}
+.ciclo h2 {
+  color: #7f1d1d;
+}
+.ciclo h3 {
+  font-size: 0.875rem;
+  margin: 20px 0 8px;
+  color: #7f1d1d;
+}
+.ciclo-cadena li {
+  color: var(--falla);
+}
+.bloqueados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.bloqueados span {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--superficie);
+  border: 1px solid #fecaca;
+  font-size: 0.875rem;
+}
+.eslabones {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.eslabones li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  background: var(--superficie);
+  border: 1px solid #fecaca;
+  border-radius: var(--radio-sm);
+}

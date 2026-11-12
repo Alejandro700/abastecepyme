@@ -1,0 +1,95 @@
+.rejilla {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .rejilla {
+    grid-template-columns: 1fr 360px;
+  }
+  .dependencias {
+    grid-column: 1;
+  }
+}
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.encabezado h2 {
+  margin: 0;
+}
+.nombre {
+  font-weight: 600;
+  color: var(--tinta);
+}
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+.formularios {
+  display: grid;
+  gap: 20px;
+}
+.aviso {
+  margin-top: 16px;
+}
+.frase {
+  padding: 10px 12px;
+  background: var(--fondo);
+  border-radius: var(--radio-sm);
+  font-size: 0.9375rem;
+}
+.dependencias ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2 280px;
+  column-gap: 32px;
+}
+.dependencias li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--borde);
+  break-inside: avoid;
+  font-size: 0.9375rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.quitar {
+  flex: none;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--radio-sm);
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--falla);
+  cursor: pointer;
+}
+.quitar:hover {
+  background: var(--falla-suave);
+}
+.vaciar {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px dashed #fecaca;
+  border-radius: var(--radio);
+}
+.vaciar h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+.vaciar p {
+  margin: 4px 0 0;
+}

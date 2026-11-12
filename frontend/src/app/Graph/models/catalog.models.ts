@@ -51,3 +51,24 @@ export interface Resaltado {
   elementos: string[];
   aristas: string[];
 }
+
+export interface Etapa {
+  numero: number;
+  elementos: Elemento[];
+}
+
+export interface Orden {
+  objetivo: Elemento | null;
+  mensaje: string;
+  total_elementos: number;
+  total_etapas: number;
+  etapas: Etapa[];
+  secuencia: Elemento[];
+}
+
+/** Detalle del error 409 CICLO_DETECTADO de los endpoints de orden. */
+export interface Ciclo {
+  ciclo: string[];
+  bloqueados: string[];
+  explicacion: string;
+}

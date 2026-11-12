@@ -1,0 +1,97 @@
+.ciclo {
+  margin-bottom: 16px;
+}
+.explorador {
+  display: grid;
+  gap: 20px;
+}
+@media (min-width: 1024px) {
+  .explorador {
+    grid-template-columns: 1fr 340px;
+  }
+}
+.lienzo {
+  position: relative;
+  padding: 0;
+  height: min(68vh, 640px);
+  min-height: 380px;
+  overflow: hidden;
+}
+.leyenda {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 8px 12px;
+  list-style: none;
+  background: rgb(255 255 255 / 0.9);
+  border-radius: var(--radio-sm);
+  pointer-events: none;
+}
+.panel h2 {
+  margin: 4px 0;
+}
+.panel h3 {
+  font-size: 0.875rem;
+  margin: 20px 0 8px;
+}
+.panel-cabecera {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-cabecera p {
+  margin: 0;
+}
+.cerrar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+.lista {
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+}
+.lista li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--borde);
+}
+.lista small {
+  color: var(--texto-suave);
+}
+.panel .boton {
+  margin-top: 20px;
+  width: 100%;
+}
+.panel .girador {
+  margin: 24px auto;
+}
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 20px 0 0;
+}
+.resumen dt {
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+.resumen dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tinta);
+}

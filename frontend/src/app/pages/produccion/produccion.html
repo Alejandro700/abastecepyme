@@ -1,0 +1,101 @@
+<div class="contenedor pagina">
+  <header class="pagina-cabecera">
+    <span class="antetitulo">Producción</span>
+    <h1>Orden de preparación</h1>
+    <p>
+      Lo que no necesita nada va primero. Cada etapa depende de las anteriores, y lo que está en una
+      misma etapa se puede preparar en paralelo.
+    </p>
+  </header>
+
+  <app-estado-red>
+    <div class="campo selector">
+      <label for="objetivo">Calcular el orden para</label>
+      <select id="objetivo" [value]="objetivo()" (change)="elegir(valor($event))">
+        <option value="">Toda la red</option>
+        @for (p of productos(); track p.id) {
+          <option [value]="p.id">{{ p.id }}</option>
+        }
+      </select>
+    </div>
+
+    @if (consultando()) {
+      <div class="girador" role="status"><span class="sr-only">Calculando…</span></div>
+    } @else if (error()) {
+      <div class="alerta alerta-error" role="alert">
+        <svg lucideTriangleAlert></svg>
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (ciclo(); as c) {
+      <section class="tarjeta ciclo aparecer" role="alert" aria-labelledby="titulo-ciclo">
+        <div class="ciclo-cabecera">
+          <svg lucideTriangleAlert></svg>
+          <div>
+            <h2 id="titulo-ciclo">No hay un orden posible: hay una dependencia circular</h2>
+            <p>{{ c.explicacion }}. Ninguno de estos elementos puede prepararse primero.</p>
+          </div>
+        </div>
+        <h3>El ciclo</h3>
+        <ol class="cadena ciclo-cadena">
+          @for (id of c.ciclo; track $index) {
+            <li>{{ id }}</li>
+          }
+        </ol>
+        <h3>Elementos bloqueados · {{ c.bloqueados.length }}</h3>
+        <p class="bloqueados">
+          @for (id of c.bloqueados; track id) {
+            <span>{{ id }}</span>
+          }
+        </p>
+        <h3>Para resolverlo, quita la dependencia que no corresponde a la realidad</h3>
+        <ul class="eslabones">
+          @for (par of pares(c.ciclo); track $index) {
+            <li>
+              <span>{{ par[0] }} necesita <strong>{{ par[1] }}</strong></span>
+              <button
+                class="boton boton-secundario boton-chico"
+                type="button"
+                [disabled]="store.cargando()"
+                (click)="quitar(par[0], par[1])"
+              >
+                Quitar
+              </button>
+            </li>
+          }
+        </ul>
+        <p class="texto-suave">
+          También puedes revisarlas en el <a routerLink="/catalogo">catálogo</a>.
+        </p>
+      </section>
+    } @else if (orden(); as o) {
+      <p class="mensaje">{{ o.mensaje }}</p>
+      <ol class="etapas">
+        @for (etapa of o.etapas; track etapa.numero; let ultima = $last) {
+          <li class="etapa aparecer">
+            <div class="etapa-cabecera">
+              <span class="numero">{{ etapa.numero }}</span>
+              <div>
+                <h2>Etapa {{ etapa.numero }}</h2>
+                <small class="texto-suave">
+                  {{ etapa.elementos.length }}
+                  {{ etapa.elementos.length === 1 ? 'elemento' : 'en paralelo' }}
+                </small>
+              </div>
+            </div>
+            <ul>
+              @for (e of etapa.elementos; track e.id) {
+                <li class="pieza borde-{{ e.tipo }}">
+                  <strong>{{ e.id }}</strong>
+                  <span class="tipo tipo-{{ e.tipo }}">{{ nombreTipo[e.tipo] }}</span>
+                </li>
+              }
+            </ul>
+            @if (!ultima) {
+              <svg lucideChevronRight class="flecha" aria-hidden="true"></svg>
+            }
+          </li>
+        }
+      </ol>
+    }
+  </app-estado-red>
+</div>

@@ -27,6 +27,13 @@
             ],
             "styles": [
               "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "ngraph.forcelayout",
+              "ngraph.graph",
+              "ngraph.events",
+              "ngraph.random",
+              "ngraph.merge"
             ]
           },
           "configurations": {
