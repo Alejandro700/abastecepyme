@@ -7,6 +7,7 @@ from domain.dependency_catalog import (
     CatalogoError,
     CicloDetectadoError,
     DependenciaDuplicadaError,
+    DependenciaNoEncontradaError,
     ElementoDuplicadoError,
     ElementoNoEncontradoError,
     IdElementoInvalidoError,
@@ -18,6 +19,7 @@ HTTP_422 = 422
 MAPEO_ERRORES: tuple[tuple[type[CatalogoError], int, str], ...] = (
     (ElementoNoEncontradoError, status.HTTP_404_NOT_FOUND, "ELEMENTO_NO_ENCONTRADO"),
     (ElementoDuplicadoError, status.HTTP_409_CONFLICT, "ELEMENTO_DUPLICADO"),
+    (DependenciaNoEncontradaError, status.HTTP_404_NOT_FOUND, "DEPENDENCIA_NO_ENCONTRADA"),
     (DependenciaDuplicadaError, status.HTTP_409_CONFLICT, "DEPENDENCIA_DUPLICADA"),
     (CicloDetectadoError, status.HTTP_409_CONFLICT, "CICLO_DETECTADO"),
     (AutodependenciaError, HTTP_422, "AUTODEPENDENCIA"),

@@ -27,6 +27,15 @@ class DuplicateEdgeError(GraphError):
         )
 
 
+class EdgeNotFoundError(GraphError):
+    def __init__(self, source_id: str, target_id: str) -> None:
+        self.source_id = source_id
+        self.target_id = target_id
+        super().__init__(
+            f"La arista '{source_id}' -> '{target_id}' no existe en el grafo."
+        )
+
+
 class CycleError(GraphError):
     """El grafo tiene un ciclo, así que no admite un orden de construcción."""
 

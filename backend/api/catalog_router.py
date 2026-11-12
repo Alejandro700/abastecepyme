@@ -6,7 +6,7 @@ y los errores se convierten en `api/errors.py`.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 
 from application import CatalogService, RedDependencias
 from domain.dependency_catalog import Dependencia, Elemento
@@ -134,3 +134,33 @@ def listar_dependencias(servicio: ServicioCatalogo) -> list[DependenciaResponse]
 def obtener_red(servicio: ServicioCatalogo) -> RedResponse:
     """Devuelve elementos y dependencias juntos, listos para dibujar la red."""
     return _a_respuesta_red(servicio.obtener_red())
+
+
+@router.delete(
+    "/dependencias/{origen_id}/{destino_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Quitar una dependencia",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "El elemento o la dependencia no existen.",
+        }
+    },
+)
+def eliminar_dependencia(
+    origen_id: str, destino_id: str, servicio: ServicioCatalogo
+) -> Response:
+    """Quita la relación `origen_id` REQUIERE `destino_id` y devuelve 204."""
+    servicio.eliminar_dependencia(origen_id, destino_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(
+    "/red",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Vaciar la red (borra elementos y dependencias)",
+)
+def vaciar_red(servicio: ServicioCatalogo) -> Response:
+    """Deja el catálogo vacío. Útil para repetir demostraciones."""
+    servicio.vaciar()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

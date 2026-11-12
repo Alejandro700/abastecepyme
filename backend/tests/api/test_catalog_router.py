@@ -187,3 +187,41 @@ class TestRed:
 class TestAislamiento:
     def test_cada_test_arranca_con_catalogo_limpio(self, cliente):
         assert cliente.get("/api/elementos").json() == []
+
+
+def test_eliminar_dependencia_la_quita_de_la_red(cliente_cargado):
+    r = cliente_cargado.delete("/api/dependencias/silla/Madera")
+    assert r.status_code == 204
+    pares = {
+        (d["origen_id"], d["destino_id"])
+        for d in cliente_cargado.get("/api/red").json()["dependencias"]
+    }
+    assert ("Silla", "Madera") not in pares
+    assert len(pares) == 2
+
+
+def test_eliminar_dependencia_inexistente_responde_404(cliente_cargado):
+    r = cliente_cargado.delete("/api/dependencias/Madera/Silla")
+    assert r.status_code == 404
+    assert r.json()["error_code"] == "DEPENDENCIA_NO_ENCONTRADA"
+
+
+def test_eliminar_dependencia_con_elemento_inexistente_responde_404(cliente_cargado):
+    r = cliente_cargado.delete("/api/dependencias/Pata/Madera")
+    assert r.status_code == 404
+    assert r.json()["error_code"] == "ELEMENTO_NO_ENCONTRADO"
+
+
+def test_quitar_dependencia_resuelve_un_ciclo(cliente_cargado):
+    cliente_cargado.post(
+        "/api/dependencias", json={"origen_id": "MaderasDelSur", "destino_id": "Silla"}
+    )
+    assert cliente_cargado.get("/api/orden").status_code == 409
+    cliente_cargado.delete("/api/dependencias/MaderasDelSur/Silla")
+    assert cliente_cargado.get("/api/orden").status_code == 200
+
+
+def test_vaciar_red_deja_el_catalogo_vacio(cliente_cargado):
+    assert cliente_cargado.delete("/api/red").status_code == 204
+    red = cliente_cargado.get("/api/red").json()
+    assert red["total_elementos"] == 0 and red["total_dependencias"] == 0

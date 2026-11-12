@@ -6,6 +6,7 @@ from .errors import (
     CycleError,
     DuplicateEdgeError,
     DuplicateNodeError,
+    EdgeNotFoundError,
     NodeNotFoundError,
 )
 from .node import Node, validate_node_id
@@ -59,6 +60,12 @@ class DirectedGraph:
         self._successors[source_id].add(target_id)
         self._predecessors[target_id].add(source_id)
         return Edge(source_id=source_id, target_id=target_id)
+
+    def remove_edge(self, source_id: str, target_id: str) -> None:
+        if not self.has_edge(source_id, target_id):
+            raise EdgeNotFoundError(source_id, target_id)
+        self._successors[source_id].discard(target_id)
+        self._predecessors[target_id].discard(source_id)
 
     def has_edge(self, source_id: str, target_id: str) -> bool:
         if source_id not in self._successors:

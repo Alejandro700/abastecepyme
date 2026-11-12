@@ -7,6 +7,7 @@ from .errors import (
     CatalogoError,
     CicloDetectadoError,
     DependenciaDuplicadaError,
+    DependenciaNoEncontradaError,
     ElementoDuplicadoError,
     ElementoNoEncontradoError,
     IdElementoInvalidoError,
@@ -36,5 +37,6 @@ __all__ = [
     "ElementoNoEncontradoError",
     "ElementoDuplicadoError",
     "DependenciaDuplicadaError",
+    "DependenciaNoEncontradaError",
     "AutodependenciaError",
 ]
