@@ -4,6 +4,7 @@ from .errors import (
     CycleError,
     DuplicateEdgeError,
     DuplicateNodeError,
+    EdgeNotFoundError,
     GraphError,
     InvalidNodeIdError,
     NodeNotFoundError,
@@ -22,4 +23,5 @@ __all__ = [
     "NodeNotFoundError",
     "DuplicateNodeError",
     "DuplicateEdgeError",
+    "EdgeNotFoundError",
 ]

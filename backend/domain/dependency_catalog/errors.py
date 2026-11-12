@@ -57,6 +57,17 @@ class DependenciaDuplicadaError(CatalogoError):
         )
 
 
+class DependenciaNoEncontradaError(CatalogoError):
+    """La dependencia no está registrada."""
+
+    def __init__(self, origen_id: str, destino_id: str) -> None:
+        self.origen_id = origen_id
+        self.destino_id = destino_id
+        super().__init__(
+            f"No está registrado que '{origen_id}' requiera '{destino_id}'."
+        )
+
+
 class AutodependenciaError(CatalogoError):
     """Un elemento no puede requerirse a sí mismo."""
 

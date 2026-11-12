@@ -3,6 +3,7 @@ from ..graph import (
     DirectedGraph,
     DuplicateEdgeError,
     DuplicateNodeError,
+    EdgeNotFoundError,
     Node,
     Visit,
 )
@@ -14,6 +15,7 @@ from .errors import (
     CatalogoError,
     CicloDetectadoError,
     DependenciaDuplicadaError,
+    DependenciaNoEncontradaError,
     ElementoDuplicadoError,
     ElementoNoEncontradoError,
 )
@@ -78,6 +80,14 @@ class DependencyCatalog:
             raise DependenciaDuplicadaError(origen.id, destino.id) from None
 
         return Dependencia(origen_id=origen.id, destino_id=destino.id)
+
+    def eliminar_dependencia(self, origen_id: object, destino_id: object) -> None:
+        origen = self._resolver(origen_id)
+        destino = self._resolver(destino_id)
+        try:
+            self._grafo.remove_edge(origen.id, destino.id)
+        except EdgeNotFoundError:
+            raise DependenciaNoEncontradaError(origen.id, destino.id) from None
 
     def listar_dependencias(self) -> tuple[Dependencia, ...]:
         return tuple(

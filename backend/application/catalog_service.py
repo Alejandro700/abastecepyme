@@ -4,6 +4,7 @@ from domain.dependency_catalog import (
     Alcance,
     CatalogRepository,
     Dependencia,
+    DependencyCatalog,
     Elemento,
     OrdenProduccion,
 )
@@ -50,6 +51,15 @@ class CatalogService:
         dependencia = catalogo.registrar_dependencia(origen_id, destino_id)
         self._repositorio.guardar(catalogo)
         return dependencia
+
+    def eliminar_dependencia(self, origen_id: object, destino_id: object) -> None:
+        catalogo = self._repositorio.obtener()
+        catalogo.eliminar_dependencia(origen_id, destino_id)
+        self._repositorio.guardar(catalogo)
+
+    def vaciar(self) -> None:
+        """Borra todos los elementos y dependencias."""
+        self._repositorio.guardar(DependencyCatalog())
 
     def listar_elementos(self) -> tuple[Elemento, ...]:
         return self._repositorio.obtener().listar_elementos()
