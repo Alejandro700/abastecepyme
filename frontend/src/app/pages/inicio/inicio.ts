@@ -45,8 +45,8 @@ import { InicioDetalle } from './inicio-detalle';
           detiene si algo falla y en qué orden preparar tu producción.
         </p>
         <div class="acciones">
-          <a class="boton" routerLink="/impacto">Simular una falla <svg lucideArrowRight></svg></a>
-          <a class="boton boton-secundario" routerLink="/red">Ver la red</a>
+          <a class="boton" routerLink="/tablero">Abrir el tablero <svg lucideArrowRight></svg></a>
+          <a class="boton boton-secundario" routerLink="/impacto">Simular una falla</a>
         </div>
         <ul class="garantias">
           <li><svg lucideClock></svg> Resultados en segundos</li>

@@ -156,3 +156,28 @@ Decisiones tomadas al implementar:
 Verificación: `ng build` sin errores ni avisos; revisión en Chrome a 1440 px y 390 px de todas
 las páginas, con red vacía, con datos de ejemplo y con un ciclo, sin errores en la consola.
 Capturas en `docs/capturas/`.
+
+## Cambio: la red 3D pasa a ser una planta de producción (2026-11-18)
+
+**Necesidad.** Las esferas y flechas de `3d-force-graph` mostraban la red, pero no contaban la
+historia del cliente. Para presentar la herramienta a una pyme, la vista tenía que verse como su
+propia planta.
+
+**Decisión.** Se reescribió `shared/red3d.ts` con `three` directamente (ya estaba instalado; no
+se agregó ninguna dependencia) y se desinstaló `3d-force-graph`, que dejó de usarse.
+
+| Dominio | En la escena |
+|---|---|
+| Etapa de preparación | Franja pintada en el piso de la nave ("ETAPA 1", "ETAPA 2"…) |
+| Proveedor | Muelle de recepción |
+| Insumo | Estantería con material |
+| Producto | Estación de ensamble con brazo robótico |
+| `A → B` (A necesita B) | Banda transportadora: el material va de B hacia A |
+| Estado | Torre de luces: verde opera, ámbar se detiene, rojo falla |
+| Falla simulada | Bandas de la cadena y brazos de ensamble detenidos |
+| Ciclo | Bandas y luces en rojo; las franjas se ordenan por tipo (no hay etapas) |
+
+Se conservan las mismas entradas del componente (`red`, `etapas`, `ciclo`, `resaltado`,
+`seleccionado`, `interactivo`), el respaldo 2D con Cytoscape, la carga perezosa de `three` y la
+regla de no escribir signals en cada cuadro. Las bandas recorren pasillos de una cuadrícula, así
+que nunca atraviesan una estación, y la animación se pausa cuando la vista no está en pantalla.

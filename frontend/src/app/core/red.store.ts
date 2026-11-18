@@ -30,6 +30,7 @@ const DEMO_DEPENDENCIAS: [string, string][] = [
   ['Mesa', 'Barniz'],
   ['Madera', 'MaderasDelSur'],
   ['Tornillos', 'FerreteriaCentral'],
+  ['Barniz', 'QuimicosAndinos'],
 ];
 
 /**

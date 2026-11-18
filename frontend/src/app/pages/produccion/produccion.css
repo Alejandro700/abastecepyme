@@ -128,20 +128,23 @@
   border: 1px solid #fecaca;
   font-size: 0.875rem;
 }
-.eslabones {
-  display: grid;
-  gap: 8px;
-  margin: 0 0 16px;
-  padding: 0;
-  list-style: none;
-}
-.eslabones li {
+.clave {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border-radius: var(--radio);
+  background: var(--marca-suave);
+}
+.clave p {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 8px 8px 14px;
-  background: var(--superficie);
-  border: 1px solid #fecaca;
-  border-radius: var(--radio-sm);
+  gap: 8px;
+  margin: 0;
+}
+.clave span {
+  font-weight: 600;
+  color: var(--tinta);
 }

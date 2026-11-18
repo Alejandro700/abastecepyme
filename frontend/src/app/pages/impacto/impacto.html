@@ -73,6 +73,12 @@
 
       <section class="tarjeta detalle" aria-live="polite">
         @if (resultado(); as r) {
+          @if (r.sentido === 'IMPACTO') {
+            <p class="cifra" [class.cifra-ok]="!productosAfectados()">
+              <strong>{{ productosAfectados() }}</strong>
+              {{ productosAfectados() === 1 ? 'producto se detiene' : 'productos se detienen' }}
+            </p>
+          }
           <div
             class="alerta aparecer"
             [class.alerta-aviso]="r.total && r.sentido === 'IMPACTO'"

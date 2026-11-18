@@ -34,10 +34,12 @@ DEPENDENCIAS = [
     ("Mesa", "Barniz"),
     ("Madera", "MaderasDelSur"),
     ("Tornillos", "FerreteriaCentral"),
+    ("Barniz", "QuimicosAndinos"),
 ]
 
-# Se deja sin cargar a propósito para registrarla en vivo durante la demo.
-PENDIENTE_EN_VIVO = ("Barniz", "QuimicosAndinos")
+# Se deja sin cargar a propósito para registrarla en vivo durante la demo: la Silla también
+# lleva barniz, así QuimicosAndinos pasa a detener los dos productos.
+PENDIENTE_EN_VIVO = ("Silla", "Barniz")
 
 # Registrarla en vivo crea un ciclo (Silla -> Madera -> MaderasDelSur -> Silla).
 CICLO_EN_VIVO = ("MaderasDelSur", "Silla")

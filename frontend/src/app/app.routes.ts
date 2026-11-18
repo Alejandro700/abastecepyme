@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/inicio/inicio').then((m) => m.Inicio),
   },
   {
+    path: 'tablero',
+    title: 'Tablero de abastecimiento · AbastecePyme',
+    loadComponent: () => import('./pages/tablero/tablero').then((m) => m.Tablero),
+  },
+  {
     path: 'catalogo',
     title: 'Catálogo · AbastecePyme',
     loadComponent: () => import('./pages/catalogo/catalogo').then((m) => m.Catalogo),

@@ -451,3 +451,48 @@ a {
   color: var(--texto-suave);
   margin: 0;
 }
+
+/* ===== Piezas compartidas ===== */
+/* Botón con aspecto de enlace (por ejemplo, un elemento clicable en una lista) */
+.enlace {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--marca);
+  cursor: pointer;
+  text-align: left;
+}
+.enlace:hover {
+  text-decoration: underline;
+}
+.ir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.ir svg {
+  width: 16px;
+  height: 16px;
+}
+/* Eslabones de un ciclo, cada uno con su botón "Quitar" */
+.eslabones {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.eslabones li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  background: var(--superficie);
+  border: 1px solid #fecaca;
+  border-radius: var(--radio-sm);
+}

@@ -45,3 +45,8 @@ export function resaltadoDesde(alcance: Alcance): Resaltado {
 export function aristasDeCiclo(ciclo: string[]): string[] {
   return ciclo.slice(0, -1).map((a, i) => `${a}->${ciclo[i + 1]}`);
 }
+
+/** Eslabones consecutivos de un ciclo cerrado: [A, B, C, A] → [A, B], [B, C], [C, A]. */
+export function eslabonesDeCiclo(ciclo: string[]): [string, string][] {
+  return ciclo.slice(1).map((id, i) => [ciclo[i], id]);
+}

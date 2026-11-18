@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { LucideChevronRight, LucideTriangleAlert } from '@lucide/angular';
 
 import { RedStore } from '../../core/red.store';
-import { NOMBRE_TIPO } from '../../core/presentacion';
+import { NOMBRE_TIPO, eslabonesDeCiclo } from '../../core/presentacion';
 import { CatalogService, FalloApi } from '../../Graph/services/catalog.service';
 import { Ciclo, Orden } from '../../Graph/models/catalog.models';
 import { EstadoRed } from '../../shared/estado-red';
@@ -58,10 +58,7 @@ export class Produccion {
     }
   }
 
-  /** Eslabones consecutivos de un ciclo cerrado: [A, B, C, A] → A→B, B→C, C→A. */
-  protected pares(ciclo: string[]): [string, string][] {
-    return ciclo.slice(1).map((id, i) => [ciclo[i], id]);
-  }
+  protected readonly pares = eslabonesDeCiclo;
 
   async quitar(origen: string, destino: string): Promise<void> {
     await this.store.quitarDependencia(origen, destino);

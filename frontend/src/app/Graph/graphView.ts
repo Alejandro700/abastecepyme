@@ -73,7 +73,9 @@ export class GraphView implements OnDestroy {
             'font-weight': 'bold',
             'text-valign': 'center',
             'text-halign': 'center',
-            width: 'label',
+            // Ancho según el texto (`width: 'label'` está obsoleto en Cytoscape).
+            width: (nodo: cytoscape.NodeSingular) =>
+              String(nodo.data('etiqueta') ?? '').length * 7.5 + 8,
             height: 30,
             padding: '12px',
             shape: 'round-rectangle',

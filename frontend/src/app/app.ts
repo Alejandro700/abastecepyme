@@ -65,6 +65,7 @@ import { LucideMenu, LucideX } from '@lucide/angular';
 export class App {
   protected readonly menuAbierto = signal(false);
   protected readonly enlaces = [
+    { ruta: '/tablero', texto: 'Tablero' },
     { ruta: '/catalogo', texto: 'Catálogo' },
     { ruta: '/red', texto: 'Red' },
     { ruta: '/impacto', texto: 'Simular falla' },

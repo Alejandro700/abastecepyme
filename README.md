@@ -394,9 +394,10 @@ cd backend
 python scripts/cargar_demo.py
 ```
 
-Carga 8 elementos y 7 dependencias sintéticas (sillas, mesas, insumos y
-proveedores). Se puede ejecutar varias veces sin duplicar nada. Deja a propósito
-sin registrar `Barniz → QuimicosAndinos`, para cargarla en vivo durante la demo.
+Carga 8 elementos y 8 dependencias sintéticas (sillas, mesas, insumos y
+proveedores), incluida `Barniz → QuimicosAndinos`. Se puede ejecutar varias veces
+sin duplicar nada. Deja a propósito sin registrar `Silla → Barniz`, para cargarla
+en vivo durante la demo.
 
 ## Pruebas
 

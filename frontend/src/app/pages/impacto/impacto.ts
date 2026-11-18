@@ -60,6 +60,11 @@ export class Impacto {
     return [...grupos.entries()].map(([nivel, elementos]) => ({ nivel, elementos }));
   });
 
+  /** Lo que más importa al negocio: cuántos productos se detienen. */
+  protected readonly productosAfectados = computed(
+    () => this.resultado()?.alcanzados.filter((a) => a.tipo === 'PRODUCTO').length ?? 0,
+  );
+
   /** Un proveedor de la red para sugerir en el estado inicial. */
   protected readonly sugerencia = computed(
     () =>

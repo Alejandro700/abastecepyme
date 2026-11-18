@@ -1,0 +1,231 @@
+<div class="contenedor pagina">
+  <header class="pagina-cabecera cabecera">
+    <div>
+      <span class="antetitulo">Tablero</span>
+      <h1>Tablero de abastecimiento</h1>
+      <p>Todo en una vista: de quién dependes, qué se detiene si algo falla y en qué orden producir.</p>
+    </div>
+    <div class="cabecera-acciones">
+      @if (store.listo() && !store.vacia()) {
+        @if (store.ciclo()) {
+          <span class="estado estado-mal"><svg lucideTriangleAlert></svg> Red con un ciclo</span>
+        } @else {
+          <span class="estado estado-bien"><svg lucideCircleCheck></svg> Red lista para producir</span>
+        }
+      }
+      @if (!guia()) {
+        <button class="boton boton-secundario boton-chico" type="button" (click)="guia.set(true)">
+          <svg lucidePresentation></svg> Demostración guiada
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (guia()) {
+    <app-guia-demo (enfocar)="enfocar($event)" (cerrar)="guia.set(false)" />
+  }
+
+  <app-estado-red>
+    <!-- Cifras clave -->
+    <dl class="kpis">
+      <div class="tarjeta">
+        <dt>Elementos</dt>
+        <dd>{{ store.red().total_elementos }}</dd>
+      </div>
+      <div class="tarjeta">
+        <dt>Dependencias</dt>
+        <dd>{{ store.red().total_dependencias }}</dd>
+      </div>
+      <div class="tarjeta" [class.kpi-mal]="store.ciclo()">
+        <dt>{{ store.ciclo() ? 'Orden de producción' : 'Etapas de producción' }}</dt>
+        <dd>{{ store.ciclo() ? 'Bloqueado' : (store.orden()?.total_etapas ?? '—') }}</dd>
+      </div>
+      <div class="tarjeta kpi-critico">
+        <dt>Proveedor más crítico</dt>
+        @if (critico(); as c) {
+          <dd>
+            <button type="button" class="enlace" (click)="consulta.set('IMPACTO'); elegir(c.id)">
+              {{ c.id }}
+            </button>
+          </dd>
+          @if (c.empatados.length) {
+            <small>Empata con {{ c.empatados.join(', ') }}.</small>
+          }
+          <small>
+            Si falla, se detienen {{ c.productos.length }} de {{ totalProductos() }}
+            {{ totalProductos() === 1 ? 'producto' : 'productos' }}
+          </small>
+        } @else {
+          <dd>—</dd>
+        }
+      </div>
+    </dl>
+
+    <!-- Ciclo: la alerta más importante, con la solución a mano -->
+    @if (store.ciclo(); as c) {
+      <section class="tarjeta ciclo" role="alert">
+        <div class="ciclo-texto">
+          <svg lucideTriangleAlert></svg>
+          <div>
+            <h2>Dependencia circular: no hay un orden de producción posible</h2>
+            <p>{{ c.explicacion }}. Bloquea {{ c.bloqueados.length }} elementos. Quita la dependencia que no corresponde:</p>
+          </div>
+        </div>
+        <ul class="eslabones">
+          @for (par of eslabones(c.ciclo); track $index) {
+            <li>
+              <span>{{ par[0] }} necesita <strong>{{ par[1] }}</strong></span>
+              <button class="boton boton-secundario boton-chico" type="button" [disabled]="store.cargando()" (click)="quitar(par[0], par[1])">
+                Quitar
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- Red + consulta -->
+    <div class="principal">
+      <div class="lienzo tarjeta">
+        <app-red-3d
+          [red]="store.red()"
+          [etapas]="store.etapas()"
+          [ciclo]="store.ciclo()?.ciclo ?? []"
+          [resaltado]="resaltado()"
+          [seleccionado]="elegido()"
+          (seleccionar)="elegir($event)"
+        />
+        <ul class="leyenda" aria-label="Leyenda">
+          @if (resaltado()) {
+            @if (consulta() === 'IMPACTO') {
+              <li><i class="punto falla"></i> Falla</li>
+              <li><i class="punto afectado"></i> Se detiene</li>
+            } @else {
+              <li><i class="punto foco"></i> Consultado</li>
+              <li><i class="punto requisito"></i> Lo necesita</li>
+            }
+          } @else {
+            @for (t of tipos; track t) {
+              <li class="tipo tipo-{{ t }}">{{ nombreTipoPlural[t] }}</li>
+            }
+          }
+        </ul>
+      </div>
+
+      <aside class="panel tarjeta" aria-live="polite">
+        <div class="campo">
+          <label for="elemento">Elemento</label>
+          <select id="elemento" [value]="elegido() ?? ''" (change)="elegir(valor($event) || null)">
+            <option value="">Elige o haz clic en la red</option>
+            @for (e of store.red().elementos; track e.id) {
+              <option [value]="e.id">{{ e.id }} ({{ nombreTipo[e.tipo] }})</option>
+            }
+          </select>
+        </div>
+        <div class="segmentado" role="group" aria-label="Consulta">
+          <button type="button" [attr.aria-pressed]="consulta() === 'IMPACTO'" (click)="cambiarConsulta('IMPACTO')">Si falla</button>
+          <button type="button" [attr.aria-pressed]="consulta() === 'REQUISITOS'" (click)="cambiarConsulta('REQUISITOS')">Qué necesita</button>
+          <button type="button" [attr.aria-pressed]="consulta() === 'ORDEN'" (click)="cambiarConsulta('ORDEN')">Cómo producirlo</button>
+        </div>
+
+        @if (error()) {
+          <p class="alerta alerta-error">{{ error() }}</p>
+        } @else if (consultando() && !alcance()) {
+          <div class="girador"></div>
+        } @else if (elemento() && titular(); as t) {
+          <div class="titular titular-{{ t.tono }} aparecer">
+            <strong>{{ t.cifra }}</strong>
+            <span>{{ t.texto }}</span>
+          </div>
+
+          @if (consulta() === 'ORDEN') {
+            @if (cicloObjetivo(); as c) {
+              <p class="texto-suave">{{ c.explicacion }}.</p>
+            } @else if (orden(); as o) {
+              <ol class="pasos">
+                @for (etapa of o.etapas; track etapa.numero) {
+                  <li>
+                    <span class="n">{{ etapa.numero }}</span>
+                    <span>
+                      @for (e of etapa.elementos; track e.id; let ultimo = $last) {
+                        <span class="tipo tipo-{{ e.tipo }}">{{ e.id }}</span>{{ ultimo ? '' : ' ' }}
+                      }
+                    </span>
+                  </li>
+                }
+              </ol>
+            }
+          } @else {
+            @for (g of porTipo(); track g.tipo) {
+              <h3>{{ nombreTipoPlural[g.tipo] }} · {{ g.elementos.length }}</h3>
+              <ul class="lista">
+                @for (a of g.elementos; track a.id) {
+                  <li [title]="a.explicacion">
+                    <button type="button" class="enlace" (click)="elegir(a.id)">{{ a.id }}</button>
+                    <small>{{ a.nivel === 1 ? 'directo' : 'vía ' + a.cadena.slice(1, -1).join(' → ') }}</small>
+                  </li>
+                }
+              </ul>
+            }
+          }
+          <button class="boton boton-secundario boton-chico limpiar" type="button" (click)="limpiar()">
+            <svg lucideX></svg> Limpiar consulta
+          </button>
+        } @else {
+          <h2>¿Qué quieres saber?</h2>
+          <p class="texto-suave">
+            Elige un elemento o haz clic en la red. Empieza por el proveedor más crítico:
+            @if (critico(); as c) {
+              <button type="button" class="enlace" (click)="consulta.set('IMPACTO'); elegir(c.id)">{{ c.id }}</button>.
+            }
+          </p>
+        }
+      </aside>
+    </div>
+
+    <!-- Riesgo y orden -->
+    <div class="inferior">
+      <section class="tarjeta" id="riesgo">
+        <h2>Riesgo por proveedor</h2>
+        <p class="texto-suave">Productos que se detienen si cada proveedor falla. Haz clic para simularlo.</p>
+        <app-riesgo-proveedores
+          (calculado)="critico.set($event)"
+          (elegir)="consulta.set('IMPACTO'); elegir($event)"
+        />
+      </section>
+
+      <section class="tarjeta">
+        <h2>Orden de preparación</h2>
+        @if (store.orden(); as o) {
+          <p class="texto-suave">
+            Empieza por la etapa 1; lo de una misma etapa se prepara en paralelo.
+          </p>
+          <ol class="pasos">
+            @for (etapa of o.etapas; track etapa.numero) {
+              <li>
+                <span class="n">{{ etapa.numero }}</span>
+                <span>
+                  @for (e of etapa.elementos; track e.id; let ultimo = $last) {
+                    <span class="tipo tipo-{{ e.tipo }}">{{ e.id }}</span>{{ ultimo ? '' : ' ' }}
+                  }
+                </span>
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="texto-suave">Bloqueado por la dependencia circular. Resuélvela arriba.</p>
+        }
+        <a class="ir" routerLink="/produccion">Ver el detalle <svg lucideArrowRight></svg></a>
+      </section>
+
+      <section class="tarjeta ancho">
+        <h2>Cambia la red</h2>
+        <p class="texto-suave">
+          Registra aquí mismo un elemento o una dependencia: todo el tablero se recalcula al instante.
+          Para editar en detalle, usa el <a routerLink="/catalogo">catálogo</a>.
+        </p>
+        <app-registro-rapido />
+      </section>
+    </div>
+  </app-estado-red>
+</div>

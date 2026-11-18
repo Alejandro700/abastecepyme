@@ -69,6 +69,22 @@
       </section>
     } @else if (orden(); as o) {
       <p class="mensaje">{{ o.mensaje }}</p>
+      @if (o.etapas.length) {
+        <div class="clave">
+          <p>
+            <span>Empieza por</span>
+            @for (e of o.etapas[0].elementos; track e.id) {
+              <strong class="tipo tipo-{{ e.tipo }}">{{ e.id }}</strong>
+            }
+          </p>
+          <p>
+            <span>Termina con</span>
+            @for (e of o.etapas[o.etapas.length - 1].elementos; track e.id) {
+              <strong class="tipo tipo-{{ e.tipo }}">{{ e.id }}</strong>
+            }
+          </p>
+        </div>
+      }
       <ol class="etapas">
         @for (etapa of o.etapas; track etapa.numero; let ultima = $last) {
           <li class="etapa aparecer">

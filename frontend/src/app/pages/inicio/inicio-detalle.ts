@@ -106,7 +106,7 @@ export class InicioDetalle {
     {
       pregunta: '¿Puedo probarlo sin registrar mis datos?',
       respuesta:
-        'Sí. Con «Cargar datos de ejemplo» se registra una pequeña fábrica de muebles con 8 elementos y 7 dependencias para que explores todo.',
+        'Sí. Con «Cargar datos de ejemplo» se registra una pequeña fábrica de muebles con 8 elementos y 8 dependencias para que explores todo.',
     },
     {
       pregunta: '¿Qué es una dependencia circular y por qué importa?',
