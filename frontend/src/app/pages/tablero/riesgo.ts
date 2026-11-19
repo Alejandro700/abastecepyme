@@ -71,6 +71,8 @@ export class RiesgoProveedores {
   protected readonly ranking = signal<RiesgoProveedor[]>([]);
   /** El más crítico, para mostrarlo en las cifras del tablero. */
   readonly calculado = output<RiesgoProveedor | null>();
+  /** Productos que detiene cada proveedor, para marcarlo en la planta 3D. */
+  readonly mapa = output<Map<string, number>>();
 
   private totalProductos = 0;
 
@@ -106,9 +108,11 @@ export class RiesgoProveedores {
           .map((r) => r.id);
       }
       this.calculado.emit(primero ?? null);
+      this.mapa.emit(new Map(ranking.map((r) => [r.id, r.productos.length])));
     } catch {
       this.ranking.set([]);
       this.calculado.emit(null);
+      this.mapa.emit(new Map());
     }
   }
 }

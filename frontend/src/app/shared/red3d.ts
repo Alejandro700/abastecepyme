@@ -57,6 +57,7 @@ interface Estacion {
   anillo: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>;
   brazo?: THREE.Group;
   etiqueta: CSS2DObject;
+  texto: HTMLSpanElement;
   estado: EstadoEstacion;
   opera: boolean;
 }
@@ -162,6 +163,8 @@ export class Red3d implements OnDestroy {
   readonly ciclo = input<string[]>([]);
   readonly resaltado = input<Resaltado | null>(null);
   readonly seleccionado = input<string | null>(null);
+  /** Productos que detiene cada proveedor; se marca cuando no hay consulta ni ciclo. */
+  readonly riesgo = input<Map<string, number>>(new Map());
   /** false para vistas previas: sin controles, girando sola. */
   readonly interactivo = input(true);
   /** Se conserva por compatibilidad; la planta usa su propio fondo. */
@@ -222,6 +225,7 @@ export class Red3d implements OnDestroy {
       this.resaltado();
       this.ciclo();
       this.seleccionado();
+      this.riesgo();
       if (this.cargando()) return;
       untracked(() => this.pintar());
     });
@@ -451,7 +455,7 @@ export class Red3d implements OnDestroy {
     porEtapa: boolean,
   ): void {
     const T = this.T!;
-    const margen = 10;
+    const margen = 14;
     const w = ancho + margen * 2;
     const d = fondo + margen;
 
@@ -489,7 +493,7 @@ export class Red3d implements OnDestroy {
         ? `ETAPA ${n}`
         : NOMBRE_TIPO_PLURAL[(Object.keys(FILA_POR_TIPO) as TipoElemento[]).find((t) => FILA_POR_TIPO[t] === n)!].toUpperCase();
       const rotulo = this.rotuloPiso(texto);
-      rotulo.position.set(-w / 2 + 6.5, 0.03, z + SEP_Z / 2 - 3);
+      rotulo.position.set(-w / 2 + 7, 0.03, z);
       planta.add(rotulo);
     });
 
@@ -656,7 +660,7 @@ export class Red3d implements OnDestroy {
     etiqueta.position.set(0, alto + 3.6, 0);
     grupo.add(etiqueta);
 
-    return { id, tipo, grupo, tintes, andon, anillo, brazo, etiqueta, estado: 'normal', opera: true };
+    return { id, tipo, grupo, tintes, andon, anillo, brazo, etiqueta, texto, estado: 'normal', opera: true };
   }
 
   /**
@@ -768,6 +772,8 @@ export class Red3d implements OnDestroy {
     const cadena = new Set(resaltado?.aristas ?? []);
     const impacto = resaltado?.sentido === 'IMPACTO';
     const gris = new T.Color(GRIS);
+    const riesgo = this.riesgo();
+    const maxRiesgo = Math.max(0, ...riesgo.values());
 
     for (const s of this.estaciones.values()) {
       let estado: EstadoEstacion = 'normal';
@@ -808,7 +814,15 @@ export class Red3d implements OnDestroy {
               : COLOR_TIPO.PRODUCTO,
       );
       s.anillo.scale.setScalar(1);
-      s.etiqueta.element.firstElementChild?.classList.toggle('apagada', estado === 'apagado');
+      s.texto.classList.toggle('apagada', estado === 'apagado');
+
+      // Riesgo por proveedor: anillo rojo el más crítico, ámbar si detiene algún producto.
+      const detiene = !resaltado && !enCiclo.size ? (riesgo.get(s.id) ?? 0) : 0;
+      s.texto.textContent = detiene ? `${s.id} · detiene ${detiene}` : s.id;
+      if (detiene && !s.anillo.visible) {
+        s.anillo.visible = true;
+        s.anillo.material.color.set(detiene === maxRiesgo ? COLOR_FALLA : COLOR_AFECTADO);
+      }
     }
 
     for (const b of this.bandas) {

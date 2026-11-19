@@ -60,7 +60,7 @@ interface Paso {
           <svg lucideChevronLeft></svg> Anterior
         </button>
         @if (hechos().has(indice()) && indice() < pasos.length - 1) {
-          <button class="boton boton-chico" type="button" (click)="mover(1)">
+          <button class="boton boton-chico" type="button" [disabled]="ejecutando()" (click)="mover(1)">
             Siguiente <svg lucideChevronRight></svg>
           </button>
         } @else if (!hechos().has(indice())) {
@@ -118,12 +118,10 @@ export class GuiaDemo {
       titulo: '2. ¿De quién dependo más?',
       texto: 'El tablero calcula, para cada proveedor, cuántos productos se detendrían si fallara.',
       observa:
-        'MaderasDelSur y FerreteriaCentral empatan: si cualquiera falla, se detienen los 2 productos. QuimicosAndinos solo detiene la Mesa (por el Barniz).',
+        'MaderasDelSur y FerreteriaCentral empatan: si cualquiera falla, se detienen los 2 productos. QuimicosAndinos solo detiene la Mesa (por el Barniz). En la planta, los muelles críticos tienen anillo rojo y su etiqueta dice cuántos productos detienen.',
       boton: 'Ver el riesgo',
-      ejecutar: async () => {
-        document.getElementById('riesgo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return { id: null, consulta: 'IMPACTO' };
-      },
+      // Sin consulta activa, la planta marca el riesgo de cada proveedor.
+      ejecutar: async () => ({ id: null, consulta: 'IMPACTO' }),
     },
     {
       titulo: '3. Simula que MaderasDelSur falla',
@@ -184,12 +182,18 @@ export class GuiaDemo {
 
   protected readonly paso = computed(() => this.pasos[this.indice()]);
 
+  /** Lo que mostró cada paso ya ejecutado, para volver a mostrarlo con "Anterior". */
+  private readonly focos = new Map<number, Foco>();
+
   async ejecutar(): Promise<void> {
+    const indice = this.indice();
     this.ejecutando.set(true);
     this.error.set(null);
     try {
-      this.enfocar.emit(await this.paso().ejecutar());
-      this.hechos.update((h) => new Set(h).add(this.indice()));
+      const foco = await this.pasos[indice].ejecutar();
+      this.focos.set(indice, foco);
+      this.enfocar.emit(foco);
+      this.hechos.update((h) => new Set(h).add(indice));
     } catch (e) {
       this.error.set((e as Error).message);
     } finally {
@@ -197,13 +201,23 @@ export class GuiaDemo {
     }
   }
 
-  mover(delta: number): void {
+  /**
+   * "Siguiente" avanza y ejecuta el paso de inmediato, así el tablero cambia con un solo clic.
+   * "Anterior" vuelve a mostrar lo de ese paso sin repetir sus acciones (registrar, quitar…).
+   */
+  async mover(delta: number): Promise<void> {
+    if (this.ejecutando()) return;
     this.error.set(null);
     this.indice.update((i) => Math.min(Math.max(i + delta, 0), this.pasos.length - 1));
+    const indice = this.indice();
+    const foco = this.focos.get(indice);
+    if (foco) this.enfocar.emit(foco);
+    else if (delta > 0) await this.ejecutar();
   }
 
   reiniciar(): void {
     this.hechos.set(new Set());
+    this.focos.clear();
     this.indice.set(0);
   }
 

@@ -81,6 +81,8 @@ export class Tablero {
   /** La guía de demostración se muestra al entrar; se puede cerrar y volver a abrir. */
   protected readonly guia = signal(true);
   protected readonly critico = signal<RiesgoProveedor | null>(null);
+  /** Productos que detiene cada proveedor (se marca en la planta sin consulta activa). */
+  protected readonly riesgo = signal(new Map<string, number>());
 
   protected readonly totalProductos = computed(
     () => this.store.red().elementos.filter((e) => e.tipo === 'PRODUCTO').length,

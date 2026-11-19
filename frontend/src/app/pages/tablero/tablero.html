@@ -93,6 +93,7 @@
           [ciclo]="store.ciclo()?.ciclo ?? []"
           [resaltado]="resaltado()"
           [seleccionado]="elegido()"
+          [riesgo]="riesgo()"
           (seleccionar)="elegir($event)"
         />
         <ul class="leyenda" aria-label="Leyenda">
@@ -107,6 +108,10 @@
           } @else {
             @for (t of tipos; track t) {
               <li class="tipo tipo-{{ t }}">{{ nombreTipoPlural[t] }}</li>
+            }
+            @if (!store.ciclo()) {
+              <li><i class="punto falla"></i> Proveedor más crítico</li>
+              <li><i class="punto afectado"></i> Detiene productos</li>
             }
           }
         </ul>
@@ -190,6 +195,7 @@
         <p class="texto-suave">Productos que se detienen si cada proveedor falla. Haz clic para simularlo.</p>
         <app-riesgo-proveedores
           (calculado)="critico.set($event)"
+          (mapa)="riesgo.set($event)"
           (elegir)="consulta.set('IMPACTO'); elegir($event)"
         />
       </section>
